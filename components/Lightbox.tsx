@@ -1,0 +1,99 @@
+import React, { useEffect } from 'react';
+import { Photo } from '../types';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera } from 'lucide-react';
+
+interface LightboxProps {
+  photo: Photo;
+  photos: Photo[];
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+}
+
+export const Lightbox: React.FC<LightboxProps> = ({ photo, photos, onClose, onNext, onPrev }) => {
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') onNext();
+      if (e.key === 'ArrowLeft') onPrev();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, onNext, onPrev]);
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in">
+      
+      {/* Controls */}
+      <button 
+        onClick={onClose} 
+        className="absolute top-6 right-6 p-2 rounded-full hover:bg-stone-200/50 transition-colors z-20 text-ink"
+      >
+        <X size={28} strokeWidth={1.5} />
+      </button>
+
+      <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+        <button 
+          onClick={onPrev}
+          className="pointer-events-auto p-4 hover:text-accent-brown text-stone-300 transition-colors hidden md:block"
+        >
+          <ChevronLeft size={48} strokeWidth={1} />
+        </button>
+        <button 
+          onClick={onNext}
+          className="pointer-events-auto p-4 hover:text-accent-brown text-stone-300 transition-colors hidden md:block"
+        >
+          <ChevronRight size={48} strokeWidth={1} />
+        </button>
+      </div>
+
+      {/* Book / Album Layout */}
+      <div className="w-full h-full md:h-auto md:max-h-[85vh] md:max-w-6xl mx-auto flex flex-col md:flex-row shadow-2xl overflow-hidden rounded-[4px] bg-[#fdfbf7]">
+        
+        {/* Photo Side */}
+        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">
+           <img 
+             src={photo.url} 
+             alt={photo.title} 
+             className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white"
+           />
+        </div>
+
+        {/* Story Side */}
+        <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-l border-stone-100">
+           
+           {/* Date & Location Stamp */}
+           <div className="flex flex-col gap-1 mb-8 border-b border-stone-200 pb-6">
+              <div className="flex items-center gap-3 text-accent-brown font-serif text-sm">
+                <span className="flex items-center gap-1.5"><Calendar size={14}/> {photo.date}</span>
+                {photo.location && <span className="flex items-center gap-1.5"><MapPin size={14}/> {photo.location}</span>}
+              </div>
+              <h2 className="font-hand text-4xl text-ink mt-2">{photo.title}</h2>
+           </div>
+
+           {/* The Description (Journal Entry) */}
+           <div className="flex-1">
+             <p className="font-serif text-lg text-stone-600 leading-8 whitespace-pre-line first-letter:text-4xl first-letter:font-hand first-letter:text-accent-brown first-letter:mr-1">
+               {photo.description}
+             </p>
+           </div>
+
+           {/* Metadata / Tags */}
+           <div className="mt-8 pt-6 border-t border-stone-100 flex flex-wrap gap-2">
+              {photo.tags.map(tag => (
+                <span key={tag} className="text-xs font-sans tracking-wide text-stone-400 uppercase">
+                  #{tag}
+                </span>
+              ))}
+           </div>
+           
+           <div className="mt-8 flex items-center justify-center opacity-30">
+              <Camera size={24} className="text-stone-400" />
+           </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
