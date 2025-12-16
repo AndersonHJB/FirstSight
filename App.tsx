@@ -3,8 +3,9 @@ import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Gallery } from './pages/Gallery';
 import { TimelinePage } from './pages/TimelinePage';
+import { ArtisticGallery } from './pages/ArtisticGallery'; // New Import
 import { AlbumType } from './types';
-import { FAMILY_PHOTOS, BABY_PHOTOS, TIMELINE_EVENTS } from './constants';
+import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './constants';
 
 const App: React.FC = () => {
   // Simple custom router using generic state
@@ -34,6 +35,8 @@ const App: React.FC = () => {
     switch (currentPath) {
       case '/':
         return <Home onNavigate={navigate} />;
+      case '/gallery':
+        return <ArtisticGallery />; // New Route
       case '/family':
         return (
           <Gallery 
@@ -57,9 +60,13 @@ const App: React.FC = () => {
       <main>
         {renderPage()}
       </main>
-      <footer className="bg-white border-t border-stone-100 py-12 text-center">
-        <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
-      </footer>
+      
+      {/* Hide default footer for Gallery page to keep the immersive feel or use the custom one in component */}
+      {currentPath !== '/gallery' && (
+        <footer className="bg-white border-t border-stone-100 py-12 text-center">
+          <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
+        </footer>
+      )}
     </div>
   );
 };

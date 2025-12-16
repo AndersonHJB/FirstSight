@@ -12,6 +12,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
 
   const navItems: NavItem[] = [
     { label: '首页', path: '/' },
+    { label: '画廊', path: '/gallery' }, // New Item
     { label: '家庭影像', path: '/family' },
     { label: '成长足迹', path: '/baby' },
   ];
@@ -24,7 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
   return (
     <>
       <nav className="fixed top-0 inset-x-0 z-50 bg-paper/90 backdrop-blur-sm border-b border-stone-200/40 transition-all duration-300">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between h-20 items-center">
             {/* Logo */}
             <div 

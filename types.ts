@@ -1,6 +1,13 @@
 export enum AlbumType {
   FAMILY = 'FAMILY',
   BABY = 'BABY',
+  GALLERY = 'GALLERY',
+}
+
+export interface ExifInfo {
+  device?: string; // e.g. iPhone 13 Pro
+  params?: string; // e.g. 26mm f1.5
+  iso?: string;
 }
 
 export interface Photo {
@@ -15,6 +22,7 @@ export interface Photo {
   location?: string;
   photographer?: string; // Who took the photo?
   albumType: AlbumType;
+  exif?: ExifInfo; // Optional photography metadata
 }
 
 export interface TimelineEvent {
