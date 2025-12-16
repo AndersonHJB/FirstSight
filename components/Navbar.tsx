@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Menu, X, Home, Image, Heart, Users, Footprints } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints, Feather } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -12,6 +12,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
 
   const navItems = [
     { label: '首页', path: '/', icon: Home },
+    { label: '即刻短文', path: '/essay', icon: Feather },
     { label: '画廊', path: '/gallery', icon: Image },
     { label: '婚纱摄影', path: '/wedding', icon: Heart },
     { label: '家庭影像', path: '/family', icon: Users },

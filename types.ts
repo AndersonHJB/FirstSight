@@ -51,6 +51,17 @@ export interface TimelineEvent {
   photos: Photo[];
 }
 
+export interface Essay {
+  id: string;
+  content: string;
+  date: string;
+  from?: string;
+  location?: string | string[]; // Can be string or array of strings
+  images?: string[];
+  video?: string[];
+  link?: string;
+}
+
 export type NavItem = {
   label: string;
   path: string;

@@ -5,7 +5,8 @@ import { Home } from './pages/Home';
 import { Gallery } from './pages/Gallery';
 import { TimelinePage } from './pages/TimelinePage';
 import { ArtisticGallery } from './pages/ArtisticGallery';
-import { WeddingPage } from './pages/WeddingPage'; // New Import
+import { WeddingPage } from './pages/WeddingPage'; 
+import { EssayPage } from './pages/EssayPage'; // New Import
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './constants';
 
@@ -37,10 +38,12 @@ const App: React.FC = () => {
     switch (currentPath) {
       case '/':
         return <Home onNavigate={navigate} />;
+      case '/essay':
+        return <EssayPage />; // New Route
       case '/gallery':
         return <ArtisticGallery />; 
       case '/wedding':
-        return <WeddingPage />; // New Route
+        return <WeddingPage />; 
       case '/family':
         return (
           <Gallery 
