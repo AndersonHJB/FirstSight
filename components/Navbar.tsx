@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavItem } from '../types';
 import { Menu, X } from 'lucide-react';
@@ -12,7 +13,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
 
   const navItems: NavItem[] = [
     { label: '首页', path: '/' },
-    { label: '画廊', path: '/gallery' }, // New Item
+    { label: '画廊', path: '/gallery' },
+    { label: '婚纱摄影', path: '/wedding' }, // New Item
     { label: '家庭影像', path: '/family' },
     { label: '成长足迹', path: '/baby' },
   ];

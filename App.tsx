@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Gallery } from './pages/Gallery';
 import { TimelinePage } from './pages/TimelinePage';
-import { ArtisticGallery } from './pages/ArtisticGallery'; // New Import
+import { ArtisticGallery } from './pages/ArtisticGallery';
+import { WeddingPage } from './pages/WeddingPage'; // New Import
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './constants';
 
@@ -36,7 +38,9 @@ const App: React.FC = () => {
       case '/':
         return <Home onNavigate={navigate} />;
       case '/gallery':
-        return <ArtisticGallery />; // New Route
+        return <ArtisticGallery />; 
+      case '/wedding':
+        return <WeddingPage />; // New Route
       case '/family':
         return (
           <Gallery 
@@ -61,8 +65,11 @@ const App: React.FC = () => {
         {renderPage()}
       </main>
       
-      {/* Hide default footer for Gallery page to keep the immersive feel or use the custom one in component */}
-      {currentPath !== '/gallery' && (
+      {/* 
+        Hide default global footer for specific immersive pages.
+        WeddingPage has its own internal footer structure or uses white space.
+      */}
+      {currentPath !== '/gallery' && currentPath !== '/wedding' && (
         <footer className="bg-white border-t border-stone-100 py-12 text-center">
           <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
         </footer>

@@ -1,7 +1,9 @@
+
 export enum AlbumType {
   FAMILY = 'FAMILY',
   BABY = 'BABY',
   GALLERY = 'GALLERY',
+  WEDDING = 'WEDDING',
 }
 
 export interface ExifInfo {
@@ -23,6 +25,17 @@ export interface Photo {
   photographer?: string; // Who took the photo?
   albumType: AlbumType;
   exif?: ExifInfo; // Optional photography metadata
+}
+
+export interface WeddingSeries {
+  id: string;
+  title: string;
+  subtitle: string;
+  cover: string; // Cover image for the series card
+  date: string;
+  photographer: string;
+  description: string;
+  photos: Photo[];
 }
 
 export interface TimelineEvent {

@@ -1,4 +1,5 @@
-import { AlbumType, Photo, TimelineEvent } from './types';
+
+import { AlbumType, Photo, TimelineEvent, WeddingSeries } from './types';
 
 // ==========================================
 //  配置指南 / Configuration Guide
@@ -16,7 +17,7 @@ const FAMILY_DATA = [
       'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200',
       'https://ai.bornforthis.cn/images/P01-%E8%B4%BE%E7%BB%B4%E6%96%AF.png',
       'https://ai.bornforthis.cn/images/P02-ReadyGoDuel.png'
-    ], // User requested example with array support
+    ], 
     title: '春日野餐',
     date: '2023.04.15',
     location: '奥林匹克森林公园',
@@ -125,7 +126,7 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     age: '0岁',
     title: '天使降临',
     description: '从两个人变成三口之家，世界变得柔软了许多。',
-    photos: [BABY_PHOTOS[0]],
+    photos: [BABY_PHOTOS[0], BABY_PHOTOS[1], BABY_PHOTOS[1]],
   },
   {
     id: 't2',
@@ -145,11 +146,11 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   },
 ];
 
-// === NEW GALLERY DATA ===
+// === GALLERY DATA ===
 const GALLERY_DATA = [
   {
     id: 'g1',
-    url: ['https://images.unsplash.com/photo-1491557345352-5929e343eb89?q=80&w=1200'], // Snow/Landscape
+    url: ['https://images.unsplash.com/photo-1491557345352-5929e343eb89?q=80&w=1200'], 
     title: '雪落在丘陵上像蛋糕一样',
     date: '2025-02-08',
     location: '辽宁省凤城市',
@@ -159,7 +160,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g2',
-    url: ['https://images.unsplash.com/photo-1533552097808-166299d63f45?q=80&w=1200'], // Rickshaw / Street
+    url: ['https://images.unsplash.com/photo-1533552097808-166299d63f45?q=80&w=1200'], 
     title: '坐黄包车',
     date: '2024-11-15',
     location: '天津五大道',
@@ -169,7 +170,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g3',
-    url: ['https://images.unsplash.com/photo-1616036740257-9449ea1f6605?q=80&w=1200'], // Sunset
+    url: ['https://images.unsplash.com/photo-1616036740257-9449ea1f6605?q=80&w=1200'],
     title: '火烧云',
     date: '2024-08-30',
     location: '北环路立交桥',
@@ -179,7 +180,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g4',
-    url: ['https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1200'], // Great Wall / Winter
+    url: ['https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1200'],
     title: '第一次爬长城',
     date: '2024-01-02',
     location: '北京八达岭',
@@ -189,7 +190,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g5',
-    url: ['https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1200'], // Coffee
+    url: ['https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1200'],
     title: '库迪送的环保杯',
     date: '2025-01-15',
     location: '办公室',
@@ -199,7 +200,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g6',
-    url: ['https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200'], // School
+    url: ['https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200'],
     title: '曾经辉煌的校园也落寞了',
     date: '2024-05-20',
     location: '丹东一中',
@@ -209,7 +210,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g7',
-    url: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1200'], // Cat 1
+    url: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1200'],
     title: '上次那个公司的小家伙自己跑丢了',
     date: '2024-06-10',
     location: '园区草坪',
@@ -219,7 +220,7 @@ const GALLERY_DATA = [
   },
   {
     id: 'g8',
-    url: ['https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=1200'], // Cat 2
+    url: ['https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=1200'],
     title: '公司来了个新的小家伙',
     date: '2024-06-12',
     location: '会议室',
@@ -230,3 +231,63 @@ const GALLERY_DATA = [
 ];
 
 export const GALLERY_PHOTOS: Photo[] = GALLERY_DATA.map(d => ({ ...d, albumType: AlbumType.GALLERY }));
+
+
+// === WEDDING DATA ===
+// Helper to create mock wedding photos
+const createWeddingPhotos = (count: number, prefix: string, tag: string): Photo[] => {
+  const images = [
+     'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200',
+     'https://images.unsplash.com/photo-1511285560982-1356c11d4606?q=80&w=1200',
+     'https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1200',
+     'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=1200',
+     'https://images.unsplash.com/photo-1520854221250-8c12521743d2?q=80&w=1200',
+     'https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200'
+  ];
+
+  return Array.from({ length: count }).map((_, i) => ({
+    id: `w-${prefix}-${i}`,
+    url: [images[i % images.length]],
+    title: `${tag} Series ${i + 1}`,
+    date: '2023.05.20',
+    description: 'Love is not about how many days, months, or years you have been together. It is about how much you love each other every single day.',
+    tags: [tag, 'Wedding'],
+    albumType: AlbumType.WEDDING,
+    width: 800,
+    height: 1000,
+    exif: { device: 'Sony A7R4', params: '50mm f1.2' }
+  }));
+};
+
+export const WEDDING_COLLECTIONS: WeddingSeries[] = [
+  {
+    id: 'ws1',
+    title: 'The White Vows',
+    subtitle: '纯白誓言 · 室内主纱',
+    cover: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200',
+    date: '2023.05.20',
+    photographer: 'Art Studio',
+    description: '极简的背景，突显最纯粹的情感。白纱落地，此刻即是永恒。',
+    photos: createWeddingPhotos(6, 'main', 'Classic'),
+  },
+  {
+    id: 'ws2',
+    title: 'Vintage Romance',
+    subtitle: '复古胶片 · 城市漫步',
+    cover: 'https://images.unsplash.com/photo-1511285560982-1356c11d4606?q=80&w=1200',
+    date: '2023.05.21',
+    photographer: 'Film Lab',
+    description: '漫步在老城区的街道，胶片的颗粒感记录下像电影一样的瞬间。',
+    photos: createWeddingPhotos(8, 'retro', 'Vintage'),
+  },
+  {
+    id: 'ws3',
+    title: 'Forest & Light',
+    subtitle: '森系光影 · 自然礼赞',
+    cover: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200',
+    date: '2023.05.22',
+    photographer: 'Nature Lens',
+    description: '清晨的第一缕阳光穿过树叶，我们在森林里举行了一场只有风知道的婚礼。',
+    photos: createWeddingPhotos(5, 'forest', 'Forest'),
+  },
+];
