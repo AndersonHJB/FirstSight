@@ -27,11 +27,14 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
   const isVideo = photo.mediaType === 'video';
 
   return (
-    <div className="fixed inset-0 z-[60] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in">
+    <div 
+      className="fixed inset-0 z-[60] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
+      onClick={onClose}
+    >
       
       {/* Controls */}
       <button 
-        onClick={onClose} 
+        onClick={(e) => { e.stopPropagation(); onClose(); }} 
         className="absolute top-6 right-6 p-2 rounded-full hover:bg-stone-200/50 transition-colors z-20 text-ink"
       >
         <X size={28} strokeWidth={1.5} />
@@ -39,13 +42,13 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
 
       <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
         <button 
-          onClick={onPrev}
+          onClick={(e) => { e.stopPropagation(); onPrev(); }}
           className="pointer-events-auto p-4 hover:text-accent-brown text-stone-300 transition-colors hidden md:block"
         >
           <ChevronLeft size={48} strokeWidth={1} />
         </button>
         <button 
-          onClick={onNext}
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
           className="pointer-events-auto p-4 hover:text-accent-brown text-stone-300 transition-colors hidden md:block"
         >
           <ChevronRight size={48} strokeWidth={1} />
@@ -53,7 +56,10 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
       </div>
 
       {/* Book / Album Layout */}
-      <div className="w-full h-full md:h-auto md:max-h-[85vh] md:max-w-6xl mx-auto flex flex-col md:flex-row shadow-2xl overflow-hidden rounded-[4px] bg-[#fdfbf7]">
+      <div 
+        className="w-full h-full md:h-auto md:max-h-[85vh] md:max-w-6xl mx-auto flex flex-col md:flex-row shadow-2xl overflow-hidden rounded-[4px] bg-[#fdfbf7]"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Photo/Video Side */}
         <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">

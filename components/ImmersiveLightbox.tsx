@@ -45,7 +45,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
   const content = (
     <div 
       className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-sm flex items-center justify-center animate-fade-in select-none group/lightbox"
-      onClick={() => { setShowControls(!showControls); }} // Toggle controls on click
+      onClick={onClose} // Close on background click
     >
       
       {/* Background Image Blur Effect (Optional, subtle atmosphere) */}
@@ -92,14 +92,14 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
              controls
              autoPlay
              className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in"
-             onClick={(e) => e.stopPropagation()} 
+             onClick={(e) => { e.stopPropagation(); setShowControls(!showControls); }} // Toggle controls instead of closing
            />
         ) : (
            <img 
              src={photo.url[0]} 
              alt={photo.title} 
              className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in transition-transform duration-500"
-             onClick={(e) => e.stopPropagation()} 
+             onClick={(e) => { e.stopPropagation(); setShowControls(!showControls); }} // Toggle controls instead of closing
            />
         )}
       </div>
@@ -108,7 +108,10 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
       <div 
         className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/60 to-transparent pt-32 pb-10 px-6 md:px-12 transition-opacity duration-300 pointer-events-none ${showControls ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6 pointer-events-auto">
+        <div 
+          className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6 pointer-events-auto"
+          onClick={(e) => e.stopPropagation()} // Prevent close when clicking info area
+        >
           
           {/* Left: Title & Desc */}
           <div className="flex-1 text-white">
