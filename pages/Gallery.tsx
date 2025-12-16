@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Photo, AlbumType } from '../types';
 import { PhotoGrid } from '../components/PhotoGrid';
 import { Lightbox } from '../components/Lightbox';
@@ -10,17 +10,44 @@ interface GalleryProps {
   type: AlbumType;
 }
 
+// Helper structure for navigation
+interface Slide {
+  photo: Photo;
+  urlIndex: number;
+}
+
 export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => {
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(-1);
+
+  // Flatten all photos and their sub-images into a single linear "playlist" for the lightbox
+  const slides: Slide[] = useMemo(() => {
+    return photos.flatMap(photo => 
+      photo.url.map((_, index) => ({ photo, urlIndex: index }))
+    );
+  }, [photos]);
 
   const handlePhotoClick = (photo: Photo) => {
-    const index = photos.findIndex(p => p.id === photo.id);
-    setSelectedPhotoIndex(index);
+    // Find the first slide that matches this photo
+    const index = slides.findIndex(s => s.photo.id === photo.id && s.urlIndex === 0);
+    setCurrentSlideIndex(index);
   };
 
-  const handleClose = () => setSelectedPhotoIndex(-1);
-  const handleNext = () => setSelectedPhotoIndex((prev) => (prev + 1) % photos.length);
-  const handlePrev = () => setSelectedPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
+  const handleClose = () => setCurrentSlideIndex(-1);
+  
+  const handleNext = () => {
+    if (currentSlideIndex < slides.length - 1) {
+      setCurrentSlideIndex(currentSlideIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
+    }
+  };
+
+  // Get the current slide data to pass to Lightbox
+  const activeSlide = currentSlideIndex >= 0 ? slides[currentSlideIndex] : null;
 
   return (
     <div className="min-h-screen bg-paper pt-32 pb-24 animate-fade-in">
@@ -34,10 +61,10 @@ export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => 
          <PhotoGrid photos={photos} onPhotoClick={handlePhotoClick} />
       </div>
 
-      {selectedPhotoIndex >= 0 && (
+      {activeSlide && (
         <Lightbox 
-          photo={photos[selectedPhotoIndex]}
-          photos={photos}
+          photo={activeSlide.photo}
+          currentUrlIndex={activeSlide.urlIndex}
           onClose={handleClose}
           onNext={handleNext}
           onPrev={handlePrev}

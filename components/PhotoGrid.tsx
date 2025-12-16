@@ -1,6 +1,6 @@
 import React from 'react';
 import { Photo } from '../types';
-import { MapPin } from 'lucide-react';
+import { MapPin, Layers } from 'lucide-react';
 
 interface PhotoGridProps {
   photos: Photo[];
@@ -23,12 +23,20 @@ export const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onPhotoClick }) =>
              {/* Image */}
              <div className="relative aspect-[4/3] overflow-hidden bg-stone-100 mb-4">
                <img 
-                 src={photo.url} 
+                 src={photo.url[0]} 
                  alt={photo.title}
                  loading="lazy"
                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter saturate-[0.85] group-hover:saturate-100 contrast-[0.95] group-hover:contrast-100"
                />
                <div className="absolute inset-0 ring-1 ring-inset ring-black/5 pointer-events-none" />
+               
+               {/* Multi-photo indicator */}
+               {photo.url.length > 1 && (
+                 <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-sm flex items-center gap-1 font-sans tracking-widest z-10">
+                   <Layers size={10} />
+                   {photo.url.length}
+                 </div>
+               )}
              </div>
 
              {/* Handwritten Note Style Content */}

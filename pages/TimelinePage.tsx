@@ -1,36 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TimelineEvent, Photo } from '../types';
 import { Lightbox } from '../components/Lightbox';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Layers } from 'lucide-react';
 
 interface TimelinePageProps {
   events: TimelineEvent[];
 }
 
-export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
-  const [selectedPhoto, setSelectedPhoto] = useState<{photo: Photo, allPhotos: Photo[], index: number} | null>(null);
+interface Slide {
+  photo: Photo;
+  urlIndex: number;
+}
 
-  const getAllPhotos = () => events.flatMap(e => e.photos);
+export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(-1);
+
+  // Flatten all photos from all events into a single linear "playlist"
+  const slides: Slide[] = useMemo(() => {
+    return events.flatMap(event => 
+      event.photos.flatMap(photo => 
+        photo.url.map((_, index) => ({ photo, urlIndex: index }))
+      )
+    );
+  }, [events]);
 
   const handlePhotoClick = (photo: Photo) => {
-    const all = getAllPhotos();
-    const index = all.findIndex(p => p.id === photo.id);
-    setSelectedPhoto({ photo, allPhotos: all, index });
+    // Find the first slide that matches this photo
+    const index = slides.findIndex(s => s.photo.id === photo.id && s.urlIndex === 0);
+    setCurrentSlideIndex(index);
   };
 
-  const handleClose = () => setSelectedPhoto(null);
+  const handleClose = () => setCurrentSlideIndex(-1);
   
   const handleNext = () => {
-    if (!selectedPhoto) return;
-    const nextIndex = (selectedPhoto.index + 1) % selectedPhoto.allPhotos.length;
-    setSelectedPhoto({ ...selectedPhoto, photo: selectedPhoto.allPhotos[nextIndex], index: nextIndex });
+    if (currentSlideIndex < slides.length - 1) {
+      setCurrentSlideIndex(currentSlideIndex + 1);
+    }
   };
 
   const handlePrev = () => {
-    if (!selectedPhoto) return;
-    const prevIndex = (selectedPhoto.index - 1 + selectedPhoto.allPhotos.length) % selectedPhoto.allPhotos.length;
-    setSelectedPhoto({ ...selectedPhoto, photo: selectedPhoto.allPhotos[prevIndex], index: prevIndex });
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
+    }
   };
+
+  const activeSlide = currentSlideIndex >= 0 ? slides[currentSlideIndex] : null;
 
   return (
     <div className="min-h-screen bg-paper pt-32 pb-24 animate-fade-in">
@@ -47,7 +61,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
       {/* Timeline */}
       <div className="max-w-4xl mx-auto px-4 md:px-12">
         <div className="relative border-l border-dashed border-stone-300 ml-4 md:ml-0 space-y-24 pb-12">
-          {events.map((event, idx) => (
+          {events.map((event) => (
             <div key={event.id} className="relative pl-12 md:pl-16 group">
                
                {/* Marker */}
@@ -56,13 +70,13 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
                {/* Date Label */}
                <div className="absolute -left-20 top-1 hidden md:flex flex-col items-end pr-8 w-24">
                  <span className="font-hand text-xl text-ink">{event.date}</span>
-                 <span className="font-serif text-xs text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full mt-1">{event.age}</span>
+                 {event.age && <span className="font-serif text-xs text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full mt-1">{event.age}</span>}
                </div>
                
                {/* Mobile Date */}
                <div className="md:hidden flex items-baseline gap-3 mb-3">
                   <span className="font-hand text-xl text-ink">{event.date}</span>
-                  <span className="font-serif text-xs text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">{event.age}</span>
+                  {event.age && <span className="font-serif text-xs text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">{event.age}</span>}
                </div>
 
                {/* Content */}
@@ -70,7 +84,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
                  <h3 className="font-serif text-2xl text-ink mb-4">{event.title}</h3>
                  <p className="font-serif text-stone-600 mb-8 leading-relaxed font-light">{event.description}</p>
                  
-                 {/* Photos */}
+                 {/* Photos Grid */}
                  <div className="grid grid-cols-2 gap-4">
                     {event.photos.map((photo) => (
                       <div 
@@ -79,10 +93,17 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
                         onClick={() => handlePhotoClick(photo)}
                       >
                          <img 
-                           src={photo.url} 
+                           src={photo.url[0]} 
                            alt={photo.title}
                            className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110 filter hover:contrast-105"
                          />
+                         {/* Multi-photo indicator for Timeline */}
+                         {photo.url.length > 1 && (
+                           <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-sm flex items-center gap-1 font-sans tracking-widest z-10">
+                             <Layers size={10} />
+                             {photo.url.length}
+                           </div>
+                         )}
                       </div>
                     ))}
                  </div>
@@ -93,10 +114,10 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
         </div>
       </div>
 
-      {selectedPhoto && (
+      {activeSlide && (
         <Lightbox 
-          photo={selectedPhoto.photo}
-          photos={selectedPhoto.allPhotos}
+          photo={activeSlide.photo}
+          currentUrlIndex={activeSlide.urlIndex}
           onClose={handleClose}
           onNext={handleNext}
           onPrev={handlePrev}

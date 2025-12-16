@@ -5,7 +5,7 @@ export enum AlbumType {
 
 export interface Photo {
   id: string;
-  url: string; // Local path: e.g., "/images/img01.jpg"
+  url: string[]; // Modified to array to support multiple images per entry
   width?: number;
   height?: number;
   title: string;

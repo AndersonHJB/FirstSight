@@ -12,7 +12,11 @@ export const APP_NAME = "时光 · 家书";
 const FAMILY_DATA = [
   {
     id: 'f1',
-    url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200',
+    url: [
+      'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200',
+      'https://ai.bornforthis.cn/images/P02-ReadyGoDuel.png',
+      'https://ai.bornforthis.cn/images/P01-%E8%B4%BE%E7%BB%B4%E6%96%AF.png'
+    ], // User requested example with array support
     title: '春日野餐',
     date: '2023.04.15',
     location: '奥林匹克森林公园',
@@ -21,7 +25,7 @@ const FAMILY_DATA = [
   },
   {
     id: 'f2',
-    url: 'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=1200'],
     title: '海边日落',
     date: '2023.07.20',
     location: '阿那亚',
@@ -30,7 +34,7 @@ const FAMILY_DATA = [
   },
   {
     id: 'f3',
-    url: 'https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1609220136736-443140cffec6?q=80&w=1200'],
     title: '除夕夜',
     date: '2024.02.09',
     location: '奶奶家',
@@ -39,7 +43,7 @@ const FAMILY_DATA = [
   },
   {
     id: 'f4',
-    url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200'],
     title: '雨天读书',
     date: '2023.11.05',
     location: '家中书房',
@@ -48,7 +52,7 @@ const FAMILY_DATA = [
   },
   {
     id: 'f5',
-    url: 'https://images.unsplash.com/photo-1476900966801-48610a599696?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1476900966801-48610a599696?q=80&w=1200'],
     title: '登山远眺',
     date: '2023.09.10',
     location: '香山',
@@ -62,7 +66,7 @@ export const FAMILY_PHOTOS: Photo[] = FAMILY_DATA.map(d => ({ ...d, albumType: A
 const BABY_DATA = [
   {
     id: 'b1',
-    url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=1200'],
     title: '初次见面',
     date: '2022.05.20',
     location: '医院',
@@ -71,7 +75,7 @@ const BABY_DATA = [
   },
   {
     id: 'b2',
-    url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=1200'],
     title: '百日宴',
     date: '2022.08.28',
     location: '家中',
@@ -80,7 +84,7 @@ const BABY_DATA = [
   },
   {
     id: 'b3',
-    url: 'https://images.unsplash.com/photo-1519894759955-488663806a6b?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1519894759955-488663806a6b?q=80&w=1200'],
     title: '第一次站立',
     date: '2023.03.15',
     location: '客厅地毯',
@@ -89,7 +93,7 @@ const BABY_DATA = [
   },
   {
     id: 'b4',
-    url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?q=80&w=1200'],
     title: '公园玩耍',
     date: '2023.06.01',
     location: '儿童公园',
@@ -98,7 +102,7 @@ const BABY_DATA = [
   },
   {
     id: 'b5',
-    url: 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?q=80&w=1200',
+    url: ['https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?q=80&w=1200'],
     title: '专注时刻',
     date: '2023.10.12',
     location: '书桌',

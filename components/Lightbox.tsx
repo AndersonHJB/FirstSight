@@ -4,13 +4,14 @@ import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera } from 'lucide-r
 
 interface LightboxProps {
   photo: Photo;
-  photos: Photo[];
+  // currentUrlIndex indicates which image in the photo.url array to show
+  currentUrlIndex: number;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export const Lightbox: React.FC<LightboxProps> = ({ photo, photos, onClose, onNext, onPrev }) => {
+export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onClose, onNext, onPrev }) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -54,10 +55,19 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, photos, onClose, onNe
         {/* Photo Side */}
         <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">
            <img 
-             src={photo.url} 
+             // Key changes when URL changes to trigger animation
+             key={`${photo.id}-${currentUrlIndex}`} 
+             src={photo.url[currentUrlIndex]} 
              alt={photo.title} 
-             className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white"
+             className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white animate-fade-in"
            />
+           
+           {/* Multi-image counter */}
+           {photo.url.length > 1 && (
+             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm font-mono tracking-widest">
+                {currentUrlIndex + 1} / {photo.url.length}
+             </div>
+           )}
         </div>
 
         {/* Story Side */}
