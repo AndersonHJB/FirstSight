@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Photo } from '../types';
-import { X, ChevronLeft, ChevronRight, MapPin, Aperture, Clock, Camera } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Aperture, Clock, Camera, PlayCircle } from 'lucide-react';
 
 interface ImmersiveLightboxProps {
   photo: Photo;
@@ -39,6 +40,8 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
     return () => { document.body.style.overflow = 'unset'; };
   }, []);
 
+  const isVideo = photo.mediaType === 'video';
+
   const content = (
     <div 
       className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-sm flex items-center justify-center animate-fade-in select-none group/lightbox"
@@ -48,7 +51,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
       {/* Background Image Blur Effect (Optional, subtle atmosphere) */}
       <div 
         className="absolute inset-0 opacity-20 pointer-events-none bg-cover bg-center blur-3xl"
-        style={{ backgroundImage: `url(${photo.url[0]})` }}
+        style={{ backgroundImage: `url(${photo.poster || photo.url[0]})` }}
       />
 
       {/* Close Button */}
@@ -80,14 +83,25 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
          ) : <div />}
       </div>
 
-      {/* Main Image */}
-      <div className="relative w-full h-full p-0 md:p-12 flex items-center justify-center overflow-hidden">
-        <img 
-          src={photo.url[0]} 
-          alt={photo.title} 
-          className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in transition-transform duration-500"
-          onClick={(e) => e.stopPropagation()} 
-        />
+      {/* Main Image / Video */}
+      <div className="relative w-full h-full p-0 md:p-12 flex items-center justify-center overflow-hidden z-[50]">
+        {isVideo ? (
+           <video 
+             src={photo.url[0]} 
+             poster={photo.poster}
+             controls
+             autoPlay
+             className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in"
+             onClick={(e) => e.stopPropagation()} 
+           />
+        ) : (
+           <img 
+             src={photo.url[0]} 
+             alt={photo.title} 
+             className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in transition-transform duration-500"
+             onClick={(e) => e.stopPropagation()} 
+           />
+        )}
       </div>
 
       {/* Bottom Info Overlay */}
@@ -138,7 +152,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
             <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
                黄
             </div>
-            <span>Bornforthis</span> {/* Mocking the watermark from screenshot */}
+            <span>Bornforthis</span>
           </div>
 
         </div>

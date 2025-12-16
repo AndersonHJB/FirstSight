@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { WEDDING_COLLECTIONS } from '../constants';
 import { WeddingSeries } from '../types';
-import { ArrowLeft, Camera, Heart, Flower2 } from 'lucide-react';
+import { ArrowLeft, Camera, Heart, Flower2, PlayCircle } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 
 export const WeddingPage: React.FC = () => {
@@ -137,15 +137,33 @@ export const WeddingPage: React.FC = () => {
               className="break-inside-avoid relative group cursor-pointer overflow-hidden bg-stone-100"
               onClick={() => setSelectedPhotoIndex(idx)}
             >
-              <img 
-                src={photo.url[0]} 
-                alt={photo.title}
-                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
+              {photo.mediaType === 'video' ? (
+                <div className="w-full h-auto relative">
+                  <video 
+                    src={photo.url[0]} 
+                    poster={photo.poster}
+                    muted 
+                    loop
+                    playsInline
+                    className="w-full h-auto object-cover"
+                    onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                    onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                     <PlayCircle size={32} className="text-white/90" strokeWidth={1} />
+                  </div>
+                </div>
+              ) : (
+                <img 
+                  src={photo.url[0]} 
+                  alt={photo.title}
+                  className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              )}
               
               {/* Subtle Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />
             </div>
           ))}
         </div>

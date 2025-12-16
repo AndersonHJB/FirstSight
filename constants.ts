@@ -12,6 +12,17 @@ export const APP_NAME = "时光 · 家书";
 
 const FAMILY_DATA = [
   {
+    id: 'v1',
+    url: ['https://github.com/AndersonHJB/AndersonHJB.github.io/releases/download/V0.0.4/03-why-code.mp4'],
+    mediaType: 'video' as const,
+    poster: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200',
+    title: '为什么写代码',
+    date: '2024.01.01',
+    location: '书房',
+    description: '通过代码构建世界，这是一种独特的浪漫。记录下敲击键盘的声音和思考的瞬间。',
+    tags: ['编程', '生活', '视频'],
+  },
+  {
     id: 'f1',
     url: [
       'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200',
@@ -229,6 +240,20 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
 
 // === GALLERY DATA ===
 const GALLERY_DATA = [
+  {
+    id: 'gv1',
+    url: [
+      'https://github.com/AndersonHJB/AndersonHJB.github.io/releases/download/V0.0.4/03-why-code.mp4',
+      ],
+    mediaType: 'video' as const,
+    title: '编码艺术',
+    date: '2024-02-15',
+    location: '办公室',
+    description: '代码不仅是逻辑，也是流动的艺术。',
+    tags: ['视频', '创作'],
+    poster: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200',
+    exif: { device: 'Screen Record', params: '1080p' }
+  },
   {
     id: 'g1',
     url: ['https://images.unsplash.com/photo-1491557345352-5929e343eb89?q=80&w=1200'], 

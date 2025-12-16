@@ -1,7 +1,8 @@
+
 import React, { useState, useMemo } from 'react';
 import { TimelineEvent, Photo } from '../types';
 import { Lightbox } from '../components/Lightbox';
-import { Sparkles, Layers } from 'lucide-react';
+import { Sparkles, Layers, PlayCircle } from 'lucide-react';
 
 interface TimelinePageProps {
   events: TimelineEvent[];
@@ -92,13 +93,32 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ events }) => {
                         className="aspect-square relative overflow-hidden bg-stone-100 cursor-pointer group/img"
                         onClick={() => handlePhotoClick(photo)}
                       >
-                         <img 
-                           src={photo.url[0]} 
-                           alt={photo.title}
-                           className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110 filter hover:contrast-105"
-                         />
-                         {/* Multi-photo indicator for Timeline */}
-                         {photo.url.length > 1 && (
+                         {photo.mediaType === 'video' ? (
+                           <div className="w-full h-full relative">
+                             <video 
+                               src={photo.url[0]}
+                               poster={photo.poster}
+                               className="w-full h-full object-cover filter hover:contrast-105"
+                               muted
+                               loop
+                               playsInline
+                               onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                               onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                             />
+                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <PlayCircle size={24} className="text-white opacity-80" />
+                             </div>
+                           </div>
+                         ) : (
+                           <img 
+                             src={photo.url[0]} 
+                             alt={photo.title}
+                             className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110 filter hover:contrast-105"
+                           />
+                         )}
+
+                         {/* Multi-photo indicator for Timeline (only for images) */}
+                         {photo.mediaType !== 'video' && photo.url.length > 1 && (
                            <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-sm flex items-center gap-1 font-sans tracking-widest z-10">
                              <Layers size={10} />
                              {photo.url.length}

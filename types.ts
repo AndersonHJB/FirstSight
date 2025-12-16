@@ -12,6 +12,8 @@ export interface ExifInfo {
   iso?: string;
 }
 
+export type MediaType = 'image' | 'video';
+
 export interface Photo {
   id: string;
   url: string[]; // Modified to array to support multiple images per entry
@@ -24,6 +26,8 @@ export interface Photo {
   location?: string;
   photographer?: string; // Who took the photo?
   albumType: AlbumType;
+  mediaType?: MediaType; // Defaults to 'image'
+  poster?: string; // Cover image for video
   exif?: ExifInfo; // Optional photography metadata
 }
 

@@ -1,6 +1,7 @@
+
 import React, { useEffect } from 'react';
 import { Photo } from '../types';
-import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera, Play } from 'lucide-react';
 
 interface LightboxProps {
   photo: Photo;
@@ -22,6 +23,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev]);
+
+  const isVideo = photo.mediaType === 'video';
 
   return (
     <div className="fixed inset-0 z-[60] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in">
@@ -52,18 +55,29 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
       {/* Book / Album Layout */}
       <div className="w-full h-full md:h-auto md:max-h-[85vh] md:max-w-6xl mx-auto flex flex-col md:flex-row shadow-2xl overflow-hidden rounded-[4px] bg-[#fdfbf7]">
         
-        {/* Photo Side */}
+        {/* Photo/Video Side */}
         <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">
-           <img 
-             // Key changes when URL changes to trigger animation
-             key={`${photo.id}-${currentUrlIndex}`} 
-             src={photo.url[currentUrlIndex]} 
-             alt={photo.title} 
-             className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white animate-fade-in"
-           />
+           {isVideo ? (
+             <video
+               key={`${photo.id}-${currentUrlIndex}`}
+               src={photo.url[currentUrlIndex]}
+               controls
+               autoPlay
+               className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white animate-fade-in"
+               poster={photo.poster}
+             />
+           ) : (
+             <img 
+               // Key changes when URL changes to trigger animation
+               key={`${photo.id}-${currentUrlIndex}`} 
+               src={photo.url[currentUrlIndex]} 
+               alt={photo.title} 
+               className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white animate-fade-in"
+             />
+           )}
            
-           {/* Multi-image counter */}
-           {photo.url.length > 1 && (
+           {/* Multi-image counter (only for images usually, but keeps logic) */}
+           {!isVideo && photo.url.length > 1 && (
              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm font-mono tracking-widest">
                 {currentUrlIndex + 1} / {photo.url.length}
              </div>
@@ -99,7 +113,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
            </div>
            
            <div className="mt-8 flex items-center justify-center opacity-30">
-              <Camera size={24} className="text-stone-400" />
+              {isVideo ? <Play size={24} className="text-stone-400" /> : <Camera size={24} className="text-stone-400" />}
            </div>
         </div>
 

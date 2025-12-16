@@ -1,6 +1,7 @@
-import React from 'react';
+
+import React, { useRef } from 'react';
 import { Photo } from '../types';
-import { MapPin, Layers } from 'lucide-react';
+import { MapPin, Layers, PlayCircle } from 'lucide-react';
 
 interface PhotoGridProps {
   photos: Photo[];
@@ -20,18 +21,39 @@ export const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onPhotoClick }) =>
           {/* Card Container */}
           <div className="relative bg-white p-3 pb-8 shadow-polaroid hover:shadow-polaroid-hover transition-all duration-500 transform hover:-translate-y-1 rounded-[2px] hover:rotate-[0.5deg]">
              
-             {/* Image */}
+             {/* Image/Video Container */}
              <div className="relative aspect-[4/3] overflow-hidden bg-stone-100 mb-4">
-               <img 
-                 src={photo.url[0]} 
-                 alt={photo.title}
-                 loading="lazy"
-                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter saturate-[0.85] group-hover:saturate-100 contrast-[0.95] group-hover:contrast-100"
-               />
+               {photo.mediaType === 'video' ? (
+                 <div className="w-full h-full relative">
+                    <video
+                      src={photo.url[0]}
+                      poster={photo.poster}
+                      muted
+                      playsInline
+                      loop
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter saturate-[0.85] group-hover:saturate-100 contrast-[0.95] group-hover:contrast-100"
+                      onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                      onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="bg-black/20 rounded-full p-3 backdrop-blur-[2px] group-hover:scale-110 transition-transform duration-300">
+                        <PlayCircle size={32} className="text-white/90" strokeWidth={1.5} />
+                      </div>
+                    </div>
+                 </div>
+               ) : (
+                 <img 
+                   src={photo.url[0]} 
+                   alt={photo.title}
+                   loading="lazy"
+                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter saturate-[0.85] group-hover:saturate-100 contrast-[0.95] group-hover:contrast-100"
+                 />
+               )}
+               
                <div className="absolute inset-0 ring-1 ring-inset ring-black/5 pointer-events-none" />
                
-               {/* Multi-photo indicator */}
-               {photo.url.length > 1 && (
+               {/* Multi-photo indicator (only if image type and multiple) */}
+               {photo.mediaType !== 'video' && photo.url.length > 1 && (
                  <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-sm flex items-center gap-1 font-sans tracking-widest z-10">
                    <Layers size={10} />
                    {photo.url.length}

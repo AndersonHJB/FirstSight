@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Photo } from '../types';
 import { GALLERY_PHOTOS } from '../constants';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
-import { Image } from 'lucide-react';
+import { Image, PlayCircle } from 'lucide-react';
 
 export const ArtisticGallery: React.FC = () => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
@@ -22,6 +23,7 @@ export const ArtisticGallery: React.FC = () => {
   const getTagColor = (tag: string) => {
     if (tag === '旅行日记') return 'bg-[#5c8cba]'; // Muted Blue from screenshot
     if (tag === '生活点滴') return 'bg-[#8c7b75]'; // Warm Brown
+    if (tag === '视频') return 'bg-rose-400';
     return 'bg-stone-500';
   };
 
@@ -37,16 +39,34 @@ export const ArtisticGallery: React.FC = () => {
               className="relative aspect-square md:aspect-[4/3] group overflow-hidden cursor-pointer bg-stone-200"
               onClick={() => setSelectedPhotoIndex(index)}
             >
-              {/* Image */}
-              <img 
-                src={photo.url[0]} 
-                alt={photo.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
+              {/* Image or Video Thumbnail */}
+              {photo.mediaType === 'video' ? (
+                <div className="w-full h-full relative">
+                  <video 
+                    src={photo.url[0]}
+                    poster={photo.poster}
+                    className="w-full h-full object-cover"
+                    muted
+                    loop
+                    playsInline
+                    onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                    onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                     <PlayCircle size={40} className="text-white/80 group-hover:scale-110 transition-transform" strokeWidth={1} />
+                  </div>
+                </div>
+              ) : (
+                <img 
+                  src={photo.url[0]} 
+                  alt={photo.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              )}
               
               {/* Gradient Overlay for Text Readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity pointer-events-none" />
 
               {/* Top Left Tag */}
               <div className="absolute top-4 left-4 z-10">
