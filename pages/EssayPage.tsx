@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ESSAY_DATA } from '../constants';
 import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
@@ -33,6 +33,19 @@ export const EssayPage: React.FC = () => {
     if (selectedYear === 'All') return ESSAY_DATA;
     return ESSAY_DATA.filter(e => e.date.startsWith(selectedYear));
   }, [selectedYear]);
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // If Lightbox is open (selectedMedia is set), let Lightbox handle ESC (or its own logic).
+      // We only handle closing the Essay Modal if Lightbox is NOT open.
+      if (e.key === 'Escape' && selectedEssay && !selectedMedia) {
+        setSelectedEssay(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedEssay, selectedMedia]);
 
   return (
     <div className="min-h-screen bg-paper pt-24 animate-fade-in pb-24 px-4 md:px-8">
@@ -285,13 +298,15 @@ export const EssayPage: React.FC = () => {
                        return (
                         <div 
                           key={idx} 
-                          className="relative w-full aspect-video bg-black rounded-sm overflow-hidden group cursor-pointer" 
-                          onClick={() => setSelectedMedia({ url: vid, type: 'video' })}
+                          className="relative w-full bg-black rounded-sm overflow-hidden mt-2" 
                         >
-                           <video src={vid} className="w-full h-full object-contain" />
-                           <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                              <PlayCircle size={48} className="text-white/90" />
-                           </div>
+                           <video 
+                             src={vid} 
+                             className="w-full max-h-[500px] object-contain mx-auto" 
+                             controls
+                             playsInline
+                             preload="metadata"
+                           />
                         </div>
                       );
                     })}
