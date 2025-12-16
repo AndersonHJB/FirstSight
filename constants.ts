@@ -14,8 +14,8 @@ const FAMILY_DATA = [
     id: 'f1',
     url: [
       'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200',
-      'https://ai.bornforthis.cn/images/P02-ReadyGoDuel.png',
-      'https://ai.bornforthis.cn/images/P01-%E8%B4%BE%E7%BB%B4%E6%96%AF.png'
+      'https://images.unsplash.com/photo-1533227928236-0562f7e4f04c?q=80&w=1200',
+      'https://images.unsplash.com/photo-1621847468516-1ed5d0df56de?q=80&w=1200'
     ], // User requested example with array support
     title: '春日野餐',
     date: '2023.04.15',
