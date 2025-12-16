@@ -5,9 +5,23 @@ import { WeddingSeries } from '../types';
 import { ArrowLeft, Camera, Heart, Flower2, PlayCircle } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 
-export const WeddingPage: React.FC = () => {
+interface WeddingPageProps {
+  initialAlbumId?: string;
+}
+
+export const WeddingPage: React.FC<WeddingPageProps> = ({ initialAlbumId }) => {
   const [selectedSeries, setSelectedSeries] = useState<WeddingSeries | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
+
+  // Handle deep linking
+  useEffect(() => {
+    if (initialAlbumId) {
+      const album = WEDDING_COLLECTIONS.find(c => c.id === initialAlbumId);
+      if (album) {
+        setSelectedSeries(album);
+      }
+    }
+  }, [initialAlbumId]);
 
   // Reset scroll when switching views
   useEffect(() => {

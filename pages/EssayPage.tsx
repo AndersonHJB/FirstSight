@@ -5,15 +5,16 @@ import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 import { Photo, Essay } from '../types';
 
-export const EssayPage: React.FC = () => {
+interface EssayPageProps {
+  initialEssayId?: string;
+}
+
+export const EssayPage: React.FC<EssayPageProps> = ({ initialEssayId }) => {
   const [selectedYear, setSelectedYear] = useState<string>('All');
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
-  
-  // Lightbox State: tracks the index of the currently viewed image in the selectedEssay.images array
-  // -1 means closed
   const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
 
-  // Extract unique years from data
+  // Extract unique years
   const years = useMemo(() => {
     const allYears = ESSAY_DATA.map(e => e.date.substring(0, 4));
     return ['All', ...Array.from(new Set(allYears)).sort().reverse()];
@@ -25,16 +26,23 @@ export const EssayPage: React.FC = () => {
     return ESSAY_DATA.filter(e => e.date.startsWith(selectedYear));
   }, [selectedYear]);
 
-  // Handle ESC key to close modal or lightbox
+  // Handle Deep Linking / Initial Selection
+  useEffect(() => {
+    if (initialEssayId) {
+      const found = ESSAY_DATA.find(e => e.id === initialEssayId);
+      if (found) {
+        setSelectedEssay(found);
+      }
+    }
+  }, [initialEssayId]);
+
+  // Handle ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        // Priority 1: Close Lightbox if open
         if (lightboxIndex !== -1) {
           setLightboxIndex(-1);
-        } 
-        // Priority 2: Close Essay Detail Modal if open and Lightbox is closed
-        else if (selectedEssay) {
+        } else if (selectedEssay) {
           setSelectedEssay(null);
         }
       }
@@ -43,7 +51,7 @@ export const EssayPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedEssay, lightboxIndex]);
 
-  // Navigation Handlers for Lightbox
+  // Lightbox Navigation
   const handleNext = useCallback(() => {
     if (selectedEssay?.images && lightboxIndex < selectedEssay.images.length - 1) {
       setLightboxIndex(prev => prev + 1);
@@ -56,15 +64,15 @@ export const EssayPage: React.FC = () => {
     }
   }, [lightboxIndex]);
 
-  // Construct the active photo object for the Lightbox based on current index
+  // Active Photo for Lightbox
   const activeLightboxPhoto: Photo | null = useMemo(() => {
     if (!selectedEssay || !selectedEssay.images || lightboxIndex === -1) return null;
     const currentUrl = selectedEssay.images[lightboxIndex];
     if (!currentUrl) return null;
 
     return {
-      id: `${selectedEssay.id}-${lightboxIndex}`, // Unique ID for keying
-      url: [currentUrl], // Lightbox expects an array, we pass the current one
+      id: `${selectedEssay.id}-${lightboxIndex}`,
+      url: [currentUrl],
       title: selectedEssay.from || 'Essay Image',
       date: selectedEssay.date,
       description: selectedEssay.content,
@@ -84,7 +92,7 @@ export const EssayPage: React.FC = () => {
            <p className="font-serif text-stone-500">碎碎念，也是生活的一部分。</p>
         </div>
         
-        {/* Time Filter - Horizontal on mobile, hidden on large screens (moved to sidebar) */}
+        {/* Mobile Time Filter */}
         <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto scrollbar-hide lg:hidden">
           {years.map(year => (
             <button
@@ -103,7 +111,7 @@ export const EssayPage: React.FC = () => {
 
       <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row gap-12">
         
-        {/* Sticky Sidebar (Desktop Only) */}
+        {/* Desktop Sidebar */}
         <div className="hidden lg:block w-48 shrink-0">
           <div className="sticky top-28 space-y-8">
              <div className="flex items-center gap-2 text-accent-brown font-serif border-b border-accent-brown/20 pb-2">
@@ -120,7 +128,6 @@ export const EssayPage: React.FC = () => {
                         ? 'text-ink font-bold translate-x-2' 
                         : 'text-stone-400 hover:text-stone-600 hover:translate-x-1'}`}
                   >
-                    {/* Active Indicator Dot */}
                     {selectedYear === year && (
                       <span className="absolute -left-[21px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-ink rounded-full" />
                     )}
@@ -131,19 +138,21 @@ export const EssayPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Masonry Content Grid */}
+        {/* Content Grid */}
         <div className="flex-1">
           <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
             {filteredData.map((essay, index) => (
               <div 
                 key={essay.id} 
                 onClick={() => setSelectedEssay(essay)}
-                className="break-inside-avoid bg-white p-5 rounded-sm shadow-sm border border-stone-100/60 hover:shadow-polaroid transition-all duration-300 group flex flex-col gap-3 relative overflow-hidden cursor-pointer"
+                className={`break-inside-avoid bg-white p-5 rounded-sm shadow-sm border hover:shadow-polaroid transition-all duration-300 group flex flex-col gap-3 relative overflow-hidden cursor-pointer
+                   ${selectedEssay?.id === essay.id ? 'border-accent-brown ring-1 ring-accent-brown/20' : 'border-stone-100/60'}
+                `}
               >
-                {/* Paper Texture/Style decoration (top tape) */}
+                {/* Paper Texture */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-stone-100/50 -mt-2 opacity-50 rotate-1"></div>
 
-                {/* Header: User & Date */}
+                {/* Header */}
                 <div className="flex justify-between items-start">
                    <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
@@ -156,7 +165,7 @@ export const EssayPage: React.FC = () => {
                    </div>
                 </div>
 
-                {/* Content Text - Truncated */}
+                {/* Content */}
                 <div className="font-serif text-stone-600 leading-relaxed text-sm whitespace-pre-line mt-1">
                   {essay.content.length > 150 ? (
                     <>
@@ -166,78 +175,43 @@ export const EssayPage: React.FC = () => {
                   ) : essay.content}
                 </div>
 
-                {/* Media Grid (Compact) */}
+                {/* Media */}
                 {essay.images && essay.images.length > 0 && (
                   <div className={`grid gap-1 mt-2 rounded-sm overflow-hidden ${
                     essay.images.length === 1 ? 'grid-cols-1' : 
                     essay.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
                   }`}>
                     {essay.images.slice(0, 3).map((img, idx) => (
-                      <div 
-                        key={idx} 
-                        className="aspect-square relative overflow-hidden bg-stone-50"
-                      >
-                        <img 
-                          src={img} 
-                          alt={`Essay media`}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {/* Show count if more than 3 images */}
+                      <div key={idx} className="aspect-square relative overflow-hidden bg-stone-50">
+                        <img src={img} alt="media" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         {idx === 2 && essay.images && essay.images.length > 3 && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-lg font-bold">
-                            +{essay.images.length - 3}
-                          </div>
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-lg font-bold">+{essay.images.length - 3}</div>
                         )}
                       </div>
                     ))}
                   </div>
                 )}
 
-                {/* Video Preview */}
+                {/* Video */}
                 {essay.video && essay.video.length > 0 && (
-                  <div className="mt-2 relative aspect-video bg-black rounded-sm overflow-hidden group/vid">
-                       {/* Simplified preview for masonry grid */}
-                       {essay.video[0].includes('bilibili') ? (
-                          <div className="w-full h-full bg-stone-800 flex items-center justify-center text-stone-500">
-                             <span className="text-xs">Bilibili Video</span>
-                          </div>
-                       ) : (
-                         <video src={essay.video[0]} className="w-full h-full object-cover opacity-80" />
-                       )}
-                       <div className="absolute inset-0 flex items-center justify-center">
-                          <PlayCircle size={32} className="text-white/80" />
+                  <div className="mt-2 relative aspect-video bg-black rounded-sm overflow-hidden">
+                       <div className="w-full h-full bg-stone-800 flex items-center justify-center text-stone-500">
+                           <PlayCircle size={32} className="text-white/80" />
                        </div>
                   </div>
                 )}
 
-                {/* Footer Info */}
+                {/* Footer */}
                 <div className="mt-2 pt-2 border-t border-stone-50 flex items-center justify-between text-xs text-stone-400">
                    <div className="flex items-center gap-1 max-w-[70%] truncate">
-                      {essay.location && (
-                        <>
-                          <MapPin size={10} />
-                          <span className="truncate">
-                             {Array.isArray(essay.location) ? essay.location[0] : essay.location}
-                          </span>
-                        </>
-                      )}
+                      {essay.location && <><MapPin size={10} /><span className="truncate">{Array.isArray(essay.location) ? essay.location[0] : essay.location}</span></>}
                    </div>
-                   {essay.link && (
-                     <span className="text-accent-brown">
-                        <ExternalLink size={12} />
-                     </span>
-                   )}
+                   {essay.link && <span className="text-accent-brown"><ExternalLink size={12} /></span>}
                 </div>
 
               </div>
             ))}
           </div>
-
-          {filteredData.length === 0 && (
-             <div className="py-20 text-center text-stone-400 font-serif">
-                在这个时间段，似乎没有记录下什么...
-             </div>
-          )}
         </div>
       </div>
 
@@ -246,144 +220,53 @@ export const EssayPage: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
           <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setSelectedEssay(null)} />
           <div className="relative bg-paper w-full max-w-2xl max-h-[85vh] rounded-sm shadow-2xl overflow-y-auto flex flex-col p-6 sm:p-10 animate-slide-up border border-white/50">
+             <button onClick={() => setSelectedEssay(null)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-200/50 text-stone-400 hover:text-ink"><X size={24} strokeWidth={1.5} /></button>
              
-             {/* Close Button */}
-             <button 
-               onClick={() => setSelectedEssay(null)} 
-               className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-200/50 text-stone-400 hover:text-ink transition-colors"
-             >
-               <X size={24} strokeWidth={1.5} />
-             </button>
-
-             {/* Header */}
              <div className="flex items-center gap-4 mb-6 border-b border-stone-200 pb-4">
-                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
-                   <User size={24} />
-                </div>
+                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 shrink-0"><User size={24} /></div>
                 <div>
                   <h3 className="font-serif text-lg font-medium text-ink">{selectedEssay.from || 'Me'}</h3>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-stone-400 font-sans mt-1">
                      <span className="flex items-center gap-1"><Clock size={12}/> {selectedEssay.date}</span>
-                     {selectedEssay.location && (
-                       <span className="flex items-center gap-1">
-                         <MapPin size={12}/> 
-                         {Array.isArray(selectedEssay.location) ? selectedEssay.location.join(' · ') : selectedEssay.location}
-                       </span>
-                     )}
+                     {selectedEssay.location && <span className="flex items-center gap-1"><MapPin size={12}/> {Array.isArray(selectedEssay.location) ? selectedEssay.location.join(' · ') : selectedEssay.location}</span>}
                   </div>
                 </div>
              </div>
 
-             {/* Content */}
-             <div className="font-serif text-stone-700 leading-8 text-base whitespace-pre-line mb-8">
-               {selectedEssay.content}
-             </div>
+             <div className="font-serif text-stone-700 leading-8 text-base whitespace-pre-line mb-8">{selectedEssay.content}</div>
 
-             {/* Media Section */}
              <div className="space-y-4">
-                {/* Images Grid */}
                 {selectedEssay.images && selectedEssay.images.length > 0 && (
-                  <div className={`grid gap-2 ${
-                    selectedEssay.images.length === 1 ? 'grid-cols-1' : 
-                    selectedEssay.images.length === 2 ? 'grid-cols-2' : 
-                    'grid-cols-2 sm:grid-cols-3'
-                  }`}>
+                  <div className={`grid gap-2 ${selectedEssay.images.length === 1 ? 'grid-cols-1' : selectedEssay.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
                     {selectedEssay.images.map((img, idx) => (
-                      <div 
-                        key={idx} 
-                        className="aspect-square relative overflow-hidden bg-stone-100 cursor-zoom-in group"
-                        onClick={() => setLightboxIndex(idx)}
-                      >
-                        <img 
-                          src={img} 
-                          alt={`Detail media ${idx}`}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
+                      <div key={idx} className="aspect-square relative overflow-hidden bg-stone-100 cursor-zoom-in group" onClick={() => setLightboxIndex(idx)}>
+                        <img src={img} alt={`Detail ${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       </div>
                     ))}
                   </div>
                 )}
-
-                {/* Video Section (Inline Player) */}
-                {selectedEssay.video && selectedEssay.video.length > 0 && (
-                  <div className="space-y-4">
-                    {selectedEssay.video.map((vid, idx) => {
-                       const isBilibili = vid.includes('bilibili.com');
-                       if (isBilibili) {
-                          return (
-                            <div key={idx} className="relative w-full aspect-video bg-black rounded-sm overflow-hidden">
-                              <iframe 
-                                src={vid} 
-                                className="w-full h-full" 
-                                scrolling="no" 
-                                frameBorder="0" 
-                                allowFullScreen
-                              />
-                            </div>
-                          )
-                       }
-                       // Simple check for YouTube if needed, or other iframe sources
-                       const isYoutube = vid.includes('youtube.com') || vid.includes('youtu.be');
-                       if (isYoutube) {
-                          let embedUrl = vid;
-                          // Basic YouTube embed conversion logic if direct link provided
-                          if (!vid.includes('/embed/')) {
-                             const videoId = vid.split('v=')[1]?.split('&')[0] || vid.split('/').pop();
-                             embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                          }
-                          return (
-                            <div key={idx} className="relative w-full aspect-video bg-black rounded-sm overflow-hidden">
-                               <iframe
-                                 src={embedUrl}
-                                 className="w-full h-full"
-                                 frameBorder="0"
-                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                 allowFullScreen
-                               />
-                            </div>
-                          );
-                       }
-
-                       // Native Video
-                       return (
-                        <div 
-                          key={idx} 
-                          className="relative w-full bg-black rounded-sm overflow-hidden mt-2" 
-                        >
-                           <video 
-                             src={vid} 
-                             className="w-full max-h-[500px] object-contain mx-auto" 
-                             controls
-                             playsInline
-                             preload="metadata"
-                           />
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {selectedEssay.video && selectedEssay.video.map((vid, idx) => (
+                   <div key={idx} className="relative w-full aspect-video bg-black rounded-sm overflow-hidden mt-2">
+                      {vid.includes('bilibili') ? (
+                          <iframe src={vid} className="w-full h-full" scrolling="no" frameBorder="0" allowFullScreen />
+                      ) : vid.includes('youtube') ? (
+                          <iframe src={vid} className="w-full h-full" frameBorder="0" allowFullScreen />
+                      ) : (
+                          <video src={vid} className="w-full max-h-[500px] object-contain mx-auto" controls playsInline />
+                      )}
+                   </div>
+                ))}
              </div>
 
-             {/* Link */}
              {selectedEssay.link && (
                <div className="mt-8 pt-4 border-t border-stone-100">
-                 <a 
-                   href={selectedEssay.link} 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className="inline-flex items-center gap-2 text-sm text-accent-brown hover:text-ink transition-colors font-sans px-4 py-2 bg-stone-50 rounded-sm hover:bg-stone-100 w-full justify-center sm:w-auto"
-                 >
-                   <ExternalLink size={16} />
-                   <span>访问相关链接</span>
-                 </a>
+                 <a href={selectedEssay.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-accent-brown bg-stone-50 px-4 py-2 rounded-sm w-full justify-center"><ExternalLink size={16} /> 访问链接</a>
                </div>
              )}
-
           </div>
         </div>
       )}
 
-      {/* Lightbox for Images (Full Screen with Navigation) */}
       {activeLightboxPhoto && (
         <ImmersiveLightbox 
           photo={activeLightboxPhoto}

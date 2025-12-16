@@ -10,9 +10,9 @@ interface GalleryProps {
   subtitle: string;
   photos: Photo[];
   type: AlbumType;
+  initialPhotoId?: string;
 }
 
-// Helper structure for navigation
 interface Slide {
   photo: Photo;
   urlIndex: number;
@@ -20,25 +20,45 @@ interface Slide {
 
 const ITEMS_PER_PAGE = 9;
 
-export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => {
+export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos, initialPhotoId }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(-1);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Pagination Logic
   const totalPages = Math.ceil(photos.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedPhotos = photos.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  // Flatten all photos and their sub-images into a single linear "playlist" for the lightbox
-  // Note: For lightbox, we want to allow navigation through ALL photos, not just the current page
+  
+  // Create slides
   const slides: Slide[] = useMemo(() => {
     return photos.flatMap(photo => 
       photo.url.map((_, index) => ({ photo, urlIndex: index }))
     );
   }, [photos]);
 
+  // Handle deep linking
+  useEffect(() => {
+    if (initialPhotoId) {
+       // Find the index of the photo in the original photo array
+       const photoIndex = photos.findIndex(p => p.id === initialPhotoId);
+       if (photoIndex !== -1) {
+          // Calculate page
+          const targetPage = Math.ceil((photoIndex + 1) / ITEMS_PER_PAGE);
+          setCurrentPage(targetPage);
+
+          // Open Lightbox
+          // Find corresponding slide index (assuming first image of photo)
+          const slideIndex = slides.findIndex(s => s.photo.id === initialPhotoId && s.urlIndex === 0);
+          if (slideIndex !== -1) {
+             setCurrentSlideIndex(slideIndex);
+          }
+       }
+    }
+  }, [initialPhotoId, photos, slides]);
+
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const displayedPhotos = photos.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   const handlePhotoClick = (photo: Photo) => {
-    // Find the first slide that matches this photo in the GLOBAL list
     const index = slides.findIndex(s => s.photo.id === photo.id && s.urlIndex === 0);
     setCurrentSlideIndex(index);
   };
@@ -64,7 +84,6 @@ export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => 
     }
   };
 
-  // Get the current slide data to pass to Lightbox
   const activeSlide = currentSlideIndex >= 0 ? slides[currentSlideIndex] : null;
 
   return (
@@ -76,8 +95,6 @@ export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-[800px]">
-         {/* Key helps trigger animation on page change if supported by PhotoGrid via internal key usage, 
-             but here we just re-render grid items */}
          <PhotoGrid photos={displayedPhotos} onPhotoClick={handlePhotoClick} />
       </div>
 

@@ -1,13 +1,14 @@
 
 import React from 'react';
-import { Menu, X, Home, Image, Heart, Users, Footprints, Feather } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
   onNavigate: (path: string) => void;
+  onSearchClick: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchClick }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const navItems = [
@@ -42,35 +43,56 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
               </span>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.path;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => handleNav(item.path)}
-                    className={`relative group flex items-center gap-2 font-serif text-base py-2 transition-colors duration-300
-                      ${isActive ? 'text-ink' : 'text-stone-400 hover:text-stone-600'}
-                    `}
-                  >
-                    <Icon 
-                      size={18} 
-                      strokeWidth={1.5} 
-                      className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} 
-                    />
-                    <span>{item.label}</span>
-                    <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent-brown transition-all duration-300
-                      ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
-                    `} />
-                  </button>
-                );
-              })}
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-6">
+              {/* Menu Items */}
+              <div className="flex items-center space-x-6 lg:space-x-10">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.path;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => handleNav(item.path)}
+                      className={`relative group flex items-center gap-2 font-serif text-base py-2 transition-colors duration-300
+                        ${isActive ? 'text-ink' : 'text-stone-400 hover:text-stone-600'}
+                      `}
+                    >
+                      <Icon 
+                        size={18} 
+                        strokeWidth={1.5} 
+                        className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} 
+                      />
+                      <span>{item.label}</span>
+                      <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent-brown transition-all duration-300
+                        ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
+                      `} />
+                    </button>
+                  );
+                })}
+              </div>
+              
+              {/* Divider */}
+              <div className="h-4 w-px bg-stone-300" />
+
+              {/* Search Button */}
+              <button 
+                onClick={onSearchClick}
+                className="text-stone-400 hover:text-ink transition-colors p-2 hover:bg-stone-100 rounded-full"
+                title="搜索"
+              >
+                <Search size={20} strokeWidth={2} />
+              </button>
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            {/* Mobile Actions */}
+            <div className="flex items-center gap-4 md:hidden">
+               <button 
+                  onClick={onSearchClick}
+                  className="text-ink p-2 hover:bg-stone-100 rounded-full transition-colors"
+                >
+                  <Search size={22} />
+               </button>
               <button 
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-ink p-2 hover:bg-stone-100 rounded-full transition-colors"

@@ -1,12 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Photo } from '../types';
 import { GALLERY_PHOTOS } from '../data';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 import { Image, PlayCircle } from 'lucide-react';
 
-export const ArtisticGallery: React.FC = () => {
+interface ArtisticGalleryProps {
+  initialPhotoId?: string;
+}
+
+export const ArtisticGallery: React.FC<ArtisticGalleryProps> = ({ initialPhotoId }) => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
+
+  // Deep linking
+  useEffect(() => {
+    if (initialPhotoId) {
+      const index = GALLERY_PHOTOS.findIndex(p => p.id === initialPhotoId);
+      if (index !== -1) {
+        setSelectedPhotoIndex(index);
+      }
+    }
+  }, [initialPhotoId]);
 
   const handleNext = () => {
     if (selectedPhotoIndex < GALLERY_PHOTOS.length - 1) {
