@@ -58,7 +58,7 @@ const App: React.FC = () => {
         {renderPage()}
       </main>
       <footer className="bg-white border-t border-stone-100 py-12 text-center">
-        <p className="font-serif text-stone-400 text-sm">© 2024 时光 · 家书 Family Album. All memories preserved.</p>
+        <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
       </footer>
     </div>
   );
