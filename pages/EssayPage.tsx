@@ -3,11 +3,12 @@ import React, { useMemo, useState } from 'react';
 import { ESSAY_DATA } from '../constants';
 import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
-import { Photo } from '../types';
+import { Photo, Essay } from '../types';
 
 export const EssayPage: React.FC = () => {
   const [selectedMedia, setSelectedMedia] = useState<{ url: string, type: 'image' | 'video' } | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>('All');
+  const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
 
   // Helper to construct a Photo object for the Lightbox
   const lightboxPhoto: Photo | null = selectedMedia ? {
@@ -96,7 +97,8 @@ export const EssayPage: React.FC = () => {
             {filteredData.map((essay, index) => (
               <div 
                 key={essay.id} 
-                className="break-inside-avoid bg-white p-5 rounded-sm shadow-sm border border-stone-100/60 hover:shadow-polaroid transition-all duration-300 group flex flex-col gap-3 relative overflow-hidden"
+                onClick={() => setSelectedEssay(essay)}
+                className="break-inside-avoid bg-white p-5 rounded-sm shadow-sm border border-stone-100/60 hover:shadow-polaroid transition-all duration-300 group flex flex-col gap-3 relative overflow-hidden cursor-pointer"
               >
                 {/* Paper Texture/Style decoration (top tape) */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-stone-100/50 -mt-2 opacity-50 rotate-1"></div>
@@ -114,11 +116,12 @@ export const EssayPage: React.FC = () => {
                    </div>
                 </div>
 
-                {/* Content Text */}
+                {/* Content Text - Truncated */}
                 <div className="font-serif text-stone-600 leading-relaxed text-sm whitespace-pre-line mt-1">
                   {essay.content.length > 150 ? (
                     <>
                       {essay.content.slice(0, 150)}...
+                      <span className="text-accent-brown text-xs ml-1">(点击查看全文)</span>
                     </>
                   ) : essay.content}
                 </div>
@@ -132,13 +135,12 @@ export const EssayPage: React.FC = () => {
                     {essay.images.slice(0, 3).map((img, idx) => (
                       <div 
                         key={idx} 
-                        className="aspect-square relative overflow-hidden cursor-pointer bg-stone-50"
-                        onClick={() => setSelectedMedia({ url: img, type: 'image' })}
+                        className="aspect-square relative overflow-hidden bg-stone-50"
                       >
                         <img 
                           src={img} 
                           alt={`Essay media`}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {/* Show count if more than 3 images */}
                         {idx === 2 && essay.images && essay.images.length > 3 && (
@@ -153,14 +155,14 @@ export const EssayPage: React.FC = () => {
 
                 {/* Video Preview */}
                 {essay.video && essay.video.length > 0 && (
-                  <div className="mt-2 relative aspect-video bg-black rounded-sm overflow-hidden group/vid cursor-pointer" onClick={() => setSelectedMedia({ url: essay.video![0], type: 'video' })}>
+                  <div className="mt-2 relative aspect-video bg-black rounded-sm overflow-hidden group/vid">
                       {/* If Bilibili, show placeholder or iframe thumbnail logic - simplifying to generic video here since we are in a grid */}
                        {essay.video[0].includes('bilibili') ? (
                           <div className="w-full h-full bg-stone-800 flex items-center justify-center text-stone-500">
                              <span className="text-xs">Bilibili Video</span>
                           </div>
                        ) : (
-                         <video src={essay.video[0]} className="w-full h-full object-cover opacity-80 group-hover/vid:opacity-100 transition-opacity" />
+                         <video src={essay.video[0]} className="w-full h-full object-cover opacity-80" />
                        )}
                        <div className="absolute inset-0 flex items-center justify-center">
                           <PlayCircle size={32} className="text-white/80" />
@@ -181,9 +183,9 @@ export const EssayPage: React.FC = () => {
                       )}
                    </div>
                    {essay.link && (
-                     <a href={essay.link} target="_blank" rel="noreferrer" className="hover:text-accent-brown">
+                     <span className="text-accent-brown">
                         <ExternalLink size={12} />
-                     </a>
+                     </span>
                    )}
                 </div>
 
@@ -199,7 +201,124 @@ export const EssayPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Lightbox for Images/Videos */}
+      {/* Essay Detail Modal */}
+      {selectedEssay && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setSelectedEssay(null)} />
+          <div className="relative bg-paper w-full max-w-2xl max-h-[85vh] rounded-sm shadow-2xl overflow-y-auto flex flex-col p-6 sm:p-10 animate-slide-up border border-white/50">
+             
+             {/* Close Button */}
+             <button 
+               onClick={() => setSelectedEssay(null)} 
+               className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-200/50 text-stone-400 hover:text-ink transition-colors"
+             >
+               <X size={24} strokeWidth={1.5} />
+             </button>
+
+             {/* Header */}
+             <div className="flex items-center gap-4 mb-6 border-b border-stone-200 pb-4">
+                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
+                   <User size={24} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-medium text-ink">{selectedEssay.from || 'Me'}</h3>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-stone-400 font-sans mt-1">
+                     <span className="flex items-center gap-1"><Clock size={12}/> {selectedEssay.date}</span>
+                     {selectedEssay.location && (
+                       <span className="flex items-center gap-1">
+                         <MapPin size={12}/> 
+                         {Array.isArray(selectedEssay.location) ? selectedEssay.location.join(' · ') : selectedEssay.location}
+                       </span>
+                     )}
+                  </div>
+                </div>
+             </div>
+
+             {/* Content */}
+             <div className="font-serif text-stone-700 leading-8 text-base whitespace-pre-line mb-8">
+               {selectedEssay.content}
+             </div>
+
+             {/* Media Section */}
+             <div className="space-y-4">
+                {/* Images Grid */}
+                {selectedEssay.images && selectedEssay.images.length > 0 && (
+                  <div className={`grid gap-2 ${
+                    selectedEssay.images.length === 1 ? 'grid-cols-1' : 
+                    selectedEssay.images.length === 2 ? 'grid-cols-2' : 
+                    'grid-cols-2 sm:grid-cols-3'
+                  }`}>
+                    {selectedEssay.images.map((img, idx) => (
+                      <div 
+                        key={idx} 
+                        className="aspect-square relative overflow-hidden bg-stone-100 cursor-zoom-in group"
+                        onClick={() => setSelectedMedia({ url: img, type: 'image' })}
+                      >
+                        <img 
+                          src={img} 
+                          alt={`Detail media ${idx}`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Video Section */}
+                {selectedEssay.video && selectedEssay.video.length > 0 && (
+                  <div className="space-y-4">
+                    {selectedEssay.video.map((vid, idx) => {
+                       const isBilibili = vid.includes('bilibili.com');
+                       if (isBilibili) {
+                          return (
+                            <div key={idx} className="relative w-full aspect-video bg-black rounded-sm overflow-hidden">
+                              <iframe 
+                                src={vid} 
+                                className="w-full h-full" 
+                                scrolling="no" 
+                                frameBorder="0" 
+                                allowFullScreen
+                              />
+                            </div>
+                          )
+                       }
+                       return (
+                        <div 
+                          key={idx} 
+                          className="relative w-full aspect-video bg-black rounded-sm overflow-hidden group cursor-pointer" 
+                          onClick={() => setSelectedMedia({ url: vid, type: 'video' })}
+                        >
+                           <video src={vid} className="w-full h-full object-contain" />
+                           <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                              <PlayCircle size={48} className="text-white/90" />
+                           </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+             </div>
+
+             {/* Link */}
+             {selectedEssay.link && (
+               <div className="mt-8 pt-4 border-t border-stone-100">
+                 <a 
+                   href={selectedEssay.link} 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="inline-flex items-center gap-2 text-sm text-accent-brown hover:text-ink transition-colors font-sans px-4 py-2 bg-stone-50 rounded-sm hover:bg-stone-100 w-full justify-center sm:w-auto"
+                 >
+                   <ExternalLink size={16} />
+                   <span>访问相关链接</span>
+                 </a>
+               </div>
+             )}
+
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox for Images/Videos (Full Screen) */}
       {selectedMedia && lightboxPhoto && (
         <ImmersiveLightbox 
           photo={lightboxPhoto}
