@@ -1,26 +1,17 @@
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { ESSAY_DATA } from '../constants';
 import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 import { Photo, Essay } from '../types';
 
 export const EssayPage: React.FC = () => {
-  const [selectedMedia, setSelectedMedia] = useState<{ url: string, type: 'image' | 'video' } | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>('All');
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
-
-  // Helper to construct a Photo object for the Lightbox
-  const lightboxPhoto: Photo | null = selectedMedia ? {
-    id: 'temp-lightbox',
-    url: [selectedMedia.url],
-    title: '',
-    date: '',
-    description: '',
-    tags: [],
-    albumType: 'GALLERY' as any,
-    mediaType: selectedMedia.type,
-  } : null;
+  
+  // Lightbox State: tracks the index of the currently viewed image in the selectedEssay.images array
+  // -1 means closed
+  const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
 
   // Extract unique years from data
   const years = useMemo(() => {
@@ -34,18 +25,54 @@ export const EssayPage: React.FC = () => {
     return ESSAY_DATA.filter(e => e.date.startsWith(selectedYear));
   }, [selectedYear]);
 
-  // Handle ESC key to close modal
+  // Handle ESC key to close modal or lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // If Lightbox is open (selectedMedia is set), let Lightbox handle ESC (or its own logic).
-      // We only handle closing the Essay Modal if Lightbox is NOT open.
-      if (e.key === 'Escape' && selectedEssay && !selectedMedia) {
-        setSelectedEssay(null);
+      if (e.key === 'Escape') {
+        // Priority 1: Close Lightbox if open
+        if (lightboxIndex !== -1) {
+          setLightboxIndex(-1);
+        } 
+        // Priority 2: Close Essay Detail Modal if open and Lightbox is closed
+        else if (selectedEssay) {
+          setSelectedEssay(null);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedEssay, selectedMedia]);
+  }, [selectedEssay, lightboxIndex]);
+
+  // Navigation Handlers for Lightbox
+  const handleNext = useCallback(() => {
+    if (selectedEssay?.images && lightboxIndex < selectedEssay.images.length - 1) {
+      setLightboxIndex(prev => prev + 1);
+    }
+  }, [selectedEssay, lightboxIndex]);
+
+  const handlePrev = useCallback(() => {
+    if (lightboxIndex > 0) {
+      setLightboxIndex(prev => prev - 1);
+    }
+  }, [lightboxIndex]);
+
+  // Construct the active photo object for the Lightbox based on current index
+  const activeLightboxPhoto: Photo | null = useMemo(() => {
+    if (!selectedEssay || !selectedEssay.images || lightboxIndex === -1) return null;
+    const currentUrl = selectedEssay.images[lightboxIndex];
+    if (!currentUrl) return null;
+
+    return {
+      id: `${selectedEssay.id}-${lightboxIndex}`, // Unique ID for keying
+      url: [currentUrl], // Lightbox expects an array, we pass the current one
+      title: selectedEssay.from || 'Essay Image',
+      date: selectedEssay.date,
+      description: selectedEssay.content,
+      tags: ['Gallery'],
+      albumType: 'GALLERY' as any,
+      mediaType: 'image',
+    } as Photo;
+  }, [selectedEssay, lightboxIndex]);
 
   return (
     <div className="min-h-screen bg-paper pt-24 animate-fade-in pb-24 px-4 md:px-8">
@@ -169,7 +196,7 @@ export const EssayPage: React.FC = () => {
                 {/* Video Preview */}
                 {essay.video && essay.video.length > 0 && (
                   <div className="mt-2 relative aspect-video bg-black rounded-sm overflow-hidden group/vid">
-                      {/* If Bilibili, show placeholder or iframe thumbnail logic - simplifying to generic video here since we are in a grid */}
+                       {/* Simplified preview for masonry grid */}
                        {essay.video[0].includes('bilibili') ? (
                           <div className="w-full h-full bg-stone-800 flex items-center justify-center text-stone-500">
                              <span className="text-xs">Bilibili Video</span>
@@ -265,7 +292,7 @@ export const EssayPage: React.FC = () => {
                       <div 
                         key={idx} 
                         className="aspect-square relative overflow-hidden bg-stone-100 cursor-zoom-in group"
-                        onClick={() => setSelectedMedia({ url: img, type: 'image' })}
+                        onClick={() => setLightboxIndex(idx)}
                       >
                         <img 
                           src={img} 
@@ -277,7 +304,7 @@ export const EssayPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Video Section */}
+                {/* Video Section (Inline Player) */}
                 {selectedEssay.video && selectedEssay.video.length > 0 && (
                   <div className="space-y-4">
                     {selectedEssay.video.map((vid, idx) => {
@@ -295,6 +322,29 @@ export const EssayPage: React.FC = () => {
                             </div>
                           )
                        }
+                       // Simple check for YouTube if needed, or other iframe sources
+                       const isYoutube = vid.includes('youtube.com') || vid.includes('youtu.be');
+                       if (isYoutube) {
+                          let embedUrl = vid;
+                          // Basic YouTube embed conversion logic if direct link provided
+                          if (!vid.includes('/embed/')) {
+                             const videoId = vid.split('v=')[1]?.split('&')[0] || vid.split('/').pop();
+                             embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                          }
+                          return (
+                            <div key={idx} className="relative w-full aspect-video bg-black rounded-sm overflow-hidden">
+                               <iframe
+                                 src={embedUrl}
+                                 className="w-full h-full"
+                                 frameBorder="0"
+                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                 allowFullScreen
+                               />
+                            </div>
+                          );
+                       }
+
+                       // Native Video
                        return (
                         <div 
                           key={idx} 
@@ -333,15 +383,15 @@ export const EssayPage: React.FC = () => {
         </div>
       )}
 
-      {/* Lightbox for Images/Videos (Full Screen) */}
-      {selectedMedia && lightboxPhoto && (
+      {/* Lightbox for Images (Full Screen with Navigation) */}
+      {activeLightboxPhoto && (
         <ImmersiveLightbox 
-          photo={lightboxPhoto}
-          onClose={() => setSelectedMedia(null)}
-          hasNext={false}
-          hasPrev={false}
-          onNext={() => {}}
-          onPrev={() => {}}
+          photo={activeLightboxPhoto}
+          onClose={() => setLightboxIndex(-1)}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          hasNext={!!(selectedEssay?.images && lightboxIndex < selectedEssay.images.length - 1)}
+          hasPrev={lightboxIndex > 0}
         />
       )}
     </div>
