@@ -8,7 +8,7 @@ import { ArtisticGallery } from './pages/ArtisticGallery';
 import { WeddingPage } from './pages/WeddingPage'; 
 import { EssayPage } from './pages/EssayPage'; // New Import
 import { AlbumType } from './types';
-import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './constants';
+import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './data';
 
 const App: React.FC = () => {
   // Simple custom router using generic state

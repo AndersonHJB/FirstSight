@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Photo } from '../types';
-import { GALLERY_PHOTOS } from '../constants';
+import { GALLERY_PHOTOS } from '../data';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 import { Image, PlayCircle } from 'lucide-react';
 

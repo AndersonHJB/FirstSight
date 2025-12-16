@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { WEDDING_COLLECTIONS } from '../constants';
+import { WEDDING_COLLECTIONS } from '../data';
 import { WeddingSeries } from '../types';
 import { ArrowLeft, Camera, Heart, Flower2, PlayCircle } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';

@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { ESSAY_DATA } from '../constants';
+import { ESSAY_DATA } from '../data';
 import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 import { Photo, Essay } from '../types';
