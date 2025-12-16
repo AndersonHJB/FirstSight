@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useEffect } from 'react';
 import { Photo, AlbumType } from '../types';
 import { PhotoGrid } from '../components/PhotoGrid';
 import { Lightbox } from '../components/Lightbox';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface GalleryProps {
   title: string;
@@ -16,10 +18,19 @@ interface Slide {
   urlIndex: number;
 }
 
+const ITEMS_PER_PAGE = 9;
+
 export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(-1);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(photos.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const displayedPhotos = photos.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   // Flatten all photos and their sub-images into a single linear "playlist" for the lightbox
+  // Note: For lightbox, we want to allow navigation through ALL photos, not just the current page
   const slides: Slide[] = useMemo(() => {
     return photos.flatMap(photo => 
       photo.url.map((_, index) => ({ photo, urlIndex: index }))
@@ -27,7 +38,7 @@ export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => 
   }, [photos]);
 
   const handlePhotoClick = (photo: Photo) => {
-    // Find the first slide that matches this photo
+    // Find the first slide that matches this photo in the GLOBAL list
     const index = slides.findIndex(s => s.photo.id === photo.id && s.urlIndex === 0);
     setCurrentSlideIndex(index);
   };
@@ -46,20 +57,62 @@ export const Gallery: React.FC<GalleryProps> = ({ title, subtitle, photos }) => 
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   // Get the current slide data to pass to Lightbox
   const activeSlide = currentSlideIndex >= 0 ? slides[currentSlideIndex] : null;
 
   return (
     <div className="min-h-screen bg-paper pt-32 pb-24 animate-fade-in">
-      <div className="max-w-4xl mx-auto px-6 mb-20 text-center">
+      <div className="max-w-4xl mx-auto px-6 mb-16 text-center">
         <h1 className="font-hand text-5xl md:text-6xl text-ink mb-6">{title}</h1>
         <div className="w-12 h-1 bg-accent-brown/20 mx-auto mb-6 rounded-full" />
         <p className="font-serif text-lg text-stone-500 font-light italic">{subtitle}</p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-         <PhotoGrid photos={photos} onPhotoClick={handlePhotoClick} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-[800px]">
+         {/* Key helps trigger animation on page change if supported by PhotoGrid via internal key usage, 
+             but here we just re-render grid items */}
+         <PhotoGrid photos={displayedPhotos} onPhotoClick={handlePhotoClick} />
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="max-w-7xl mx-auto px-6 mt-16 flex justify-center items-center gap-6">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`p-3 rounded-full border border-stone-200 transition-all duration-300
+              ${currentPage === 1 
+                ? 'text-stone-300 cursor-not-allowed border-transparent' 
+                : 'text-stone-600 hover:bg-stone-100 hover:border-stone-400'}`}
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div className="flex items-baseline gap-2 font-serif text-stone-600">
+             <span className="text-2xl font-medium text-ink">{currentPage}</span>
+             <span className="text-stone-400 text-sm italic">/</span>
+             <span className="text-stone-400">{totalPages}</span>
+          </div>
+
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`p-3 rounded-full border border-stone-200 transition-all duration-300
+              ${currentPage === totalPages 
+                ? 'text-stone-300 cursor-not-allowed border-transparent' 
+                : 'text-stone-600 hover:bg-stone-100 hover:border-stone-400'}`}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      )}
 
       {activeSlide && (
         <Lightbox 
