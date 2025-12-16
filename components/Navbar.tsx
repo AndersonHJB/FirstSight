@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { NavItem } from '../types';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -11,12 +10,12 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const navItems: NavItem[] = [
-    { label: '首页', path: '/' },
-    { label: '画廊', path: '/gallery' },
-    { label: '婚纱摄影', path: '/wedding' }, // New Item
-    { label: '家庭影像', path: '/family' },
-    { label: '成长足迹', path: '/baby' },
+  const navItems = [
+    { label: '首页', path: '/', icon: Home },
+    { label: '画廊', path: '/gallery', icon: Image },
+    { label: '婚纱摄影', path: '/wedding', icon: Heart },
+    { label: '家庭影像', path: '/family', icon: Users },
+    { label: '成长足迹', path: '/baby', icon: Footprints },
   ];
 
   const handleNav = (path: string) => {
@@ -43,21 +42,30 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-12">
-              {navItems.map((item) => (
-                <button
-                  key={item.path}
-                  onClick={() => handleNav(item.path)}
-                  className={`relative font-serif text-base py-2 transition-colors duration-300
-                    ${activeTab === item.path ? 'text-ink' : 'text-stone-400 hover:text-stone-600'}
-                  `}
-                >
-                  {item.label}
-                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent-brown transition-all duration-300
-                    ${activeTab === item.path ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
-                  `} />
-                </button>
-              ))}
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.path;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleNav(item.path)}
+                    className={`relative group flex items-center gap-2 font-serif text-base py-2 transition-colors duration-300
+                      ${isActive ? 'text-ink' : 'text-stone-400 hover:text-stone-600'}
+                    `}
+                  >
+                    <Icon 
+                      size={18} 
+                      strokeWidth={1.5} 
+                      className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} 
+                    />
+                    <span>{item.label}</span>
+                    <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent-brown transition-all duration-300
+                      ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
+                    `} />
+                  </button>
+                );
+              })}
             </div>
 
             {/* Mobile Menu Button */}
@@ -76,15 +84,20 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
       {/* Mobile Overlay */}
       <div className={`fixed inset-0 z-40 bg-paper transition-transform duration-500 ease-in-out md:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col items-center justify-center h-full space-y-8">
-          {navItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => handleNav(item.path)}
-              className={`font-serif text-2xl ${activeTab === item.path ? 'text-ink font-medium' : 'text-stone-400'}`}
-            >
-              {item.label}
-            </button>
-          ))}
+          {navItems.map((item) => {
+             const Icon = item.icon;
+             const isActive = activeTab === item.path;
+             return (
+              <button
+                key={item.path}
+                onClick={() => handleNav(item.path)}
+                className={`flex items-center gap-3 font-serif text-2xl ${isActive ? 'text-ink font-medium' : 'text-stone-400'}`}
+              >
+                <Icon size={26} strokeWidth={1.5} className={isActive ? 'text-accent-brown' : ''} />
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </>
