@@ -20,9 +20,13 @@ export default defineConfig({
       tiff: {
         quality: 80,
       },
-      // 这里的 includePublic 选项对于压缩 public 目录下的静态资源非常重要
-      // 注意：某些版本的插件可能默认不处理 public，或者需要特定配置，
-      // 但对于构建产物中引用的资源，它会自动处理。
+      // 添加 WebP 配置
+      webp: {
+        quality: 80,
+      },
+      // 确保在控制台打印压缩统计信息
+      logStats: true,
+      ansiColors: true,
     }),
   ],
 })
