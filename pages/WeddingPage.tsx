@@ -130,37 +130,40 @@ export const WeddingPage: React.FC = () => {
 
       {/* Masonry Grid */}
       <div className="max-w-[1600px] mx-auto px-2 md:px-6">
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-4">
           {selectedSeries.photos.map((photo, idx) => (
             <div 
               key={photo.id}
-              className="break-inside-avoid relative group cursor-pointer overflow-hidden bg-stone-100"
+              className="break-inside-avoid mb-4 relative group cursor-pointer overflow-hidden bg-stone-100"
               onClick={() => setSelectedPhotoIndex(idx)}
             >
-              {photo.mediaType === 'video' ? (
-                <div className="w-full h-auto relative">
-                  <video 
-                    src={photo.url[0]} 
-                    poster={photo.poster}
-                    muted 
-                    loop
-                    playsInline
-                    className="w-full h-auto object-cover"
-                    onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
-                    onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                     <PlayCircle size={32} className="text-white/90" strokeWidth={1} />
+              {/* Media Container with explicit aspect ratio to prevent CLS */}
+              <div style={{ aspectRatio: photo.width && photo.height ? `${photo.width} / ${photo.height}` : 'auto' }}>
+                {photo.mediaType === 'video' ? (
+                  <div className="w-full h-full relative">
+                    <video 
+                      src={photo.url[0]} 
+                      poster={photo.poster}
+                      muted 
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                      onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                      onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                       <PlayCircle size={32} className="text-white/90" strokeWidth={1} />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <img 
-                  src={photo.url[0]} 
-                  alt={photo.title}
-                  className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-              )}
+                ) : (
+                  <img 
+                    src={photo.url[0]} 
+                    alt={photo.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                )}
+              </div>
               
               {/* Subtle Overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />

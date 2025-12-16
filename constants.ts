@@ -374,7 +374,23 @@ export const WEDDING_COLLECTIONS: WeddingSeries[] = [
     date: '2023.05.20',
     photographer: 'Art Studio',
     description: '极简的背景，突显最纯粹的情感。白纱落地，此刻即是永恒。',
-    photos: createWeddingPhotos(6, 'main', 'Classic'),
+    photos: [
+       // Added a video entry here for demonstration
+       {
+        id: 'ws1-video',
+        url: ['https://github.com/AndersonHJB/AndersonHJB.github.io/releases/download/V0.0.4/03-why-code.mp4'],
+        mediaType: 'video',
+        poster: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200',
+        title: 'Wedding Highlights',
+        date: '2023.05.20',
+        description: '记录下这最美好的一天，誓言、泪水与欢笑。',
+        tags: ['Highlight', 'Video'],
+        albumType: AlbumType.WEDDING,
+        width: 1280,
+        height: 720
+       },
+       ...createWeddingPhotos(6, 'main', 'Classic')
+    ],
   },
   {
     id: 'ws2',
