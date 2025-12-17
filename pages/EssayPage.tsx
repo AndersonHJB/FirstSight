@@ -5,6 +5,7 @@ import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
 import { LogoAvatar } from '../components/LogoAvatar';
 import { Photo, Essay } from '../types';
+import ReactMarkdown from 'react-markdown';
 
 interface EssayPageProps {
   initialEssayId?: string;
@@ -87,26 +88,28 @@ export const EssayPage: React.FC<EssayPageProps> = ({ initialEssayId }) => {
     <div className="min-h-screen bg-paper pt-24 animate-fade-in pb-24 px-4 md:px-8">
       
       {/* Header Area */}
-      <div className="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row items-baseline justify-between gap-6 border-b border-stone-200 pb-6">
-        <div>
+      <div className="max-w-7xl mx-auto mb-12 border-b border-stone-200 pb-6">
+        <div className="text-center">
            <h1 className="font-hand text-5xl mb-2 text-ink">即刻短文</h1>
            <p className="font-serif text-stone-500">碎碎念，也是生活的一部分。</p>
         </div>
         
         {/* Mobile Time Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto scrollbar-hide lg:hidden">
-          {years.map(year => (
-            <button
-              key={year}
-              onClick={() => setSelectedYear(year)}
-              className={`px-4 py-1.5 rounded-full text-sm font-sans whitespace-nowrap transition-colors
-                ${selectedYear === year 
-                  ? 'bg-ink text-white' 
-                  : 'bg-white border border-stone-200 text-stone-500 hover:border-stone-400'}`}
-            >
-              {year === 'All' ? '全部' : year}
-            </button>
-          ))}
+        <div className="flex justify-center mt-6 lg:hidden">
+            <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto scrollbar-hide justify-start md:justify-center">
+              {years.map(year => (
+                <button
+                  key={year}
+                  onClick={() => setSelectedYear(year)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-sans whitespace-nowrap transition-colors
+                    ${selectedYear === year 
+                      ? 'bg-ink text-white' 
+                      : 'bg-white border border-stone-200 text-stone-500 hover:border-stone-400'}`}
+                >
+                  {year === 'All' ? '全部' : year}
+                </button>
+              ))}
+            </div>
         </div>
       </div>
 
@@ -167,13 +170,8 @@ export const EssayPage: React.FC<EssayPageProps> = ({ initialEssayId }) => {
                 </div>
 
                 {/* Content */}
-                <div className="font-serif text-stone-600 leading-relaxed text-sm whitespace-pre-line mt-1">
-                  {essay.content.length > 150 ? (
-                    <>
-                      {essay.content.slice(0, 150)}...
-                      <span className="text-accent-brown text-xs ml-1">(点击查看全文)</span>
-                    </>
-                  ) : essay.content}
+                <div className="font-serif text-stone-600 leading-relaxed text-sm mt-1 prose prose-stone prose-sm max-w-none line-clamp-[8] prose-p:my-1 prose-a:text-accent-brown">
+                  <ReactMarkdown>{essay.content}</ReactMarkdown>
                 </div>
 
                 {/* Media */}
@@ -236,7 +234,9 @@ export const EssayPage: React.FC<EssayPageProps> = ({ initialEssayId }) => {
                 </div>
              </div>
 
-             <div className="font-serif text-stone-700 leading-8 text-base whitespace-pre-line mb-8">{selectedEssay.content}</div>
+             <div className="font-serif text-stone-700 leading-8 text-base mb-8 prose prose-stone max-w-none prose-a:text-accent-brown hover:prose-a:underline">
+               <ReactMarkdown>{selectedEssay.content}</ReactMarkdown>
+             </div>
 
              <div className="space-y-4">
                 {selectedEssay.images && selectedEssay.images.length > 0 && (
