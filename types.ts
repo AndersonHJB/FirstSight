@@ -17,26 +17,26 @@ export type MediaType = 'image' | 'video';
 
 export interface Photo {
   id: string;
-  url: string[]; // Modified to array to support multiple images per entry
+  url: string[]; 
   width?: number;
   height?: number;
   title: string;
   date: string;
-  description: string; // Manual rich description
+  description: string; 
   tags: string[];
   location?: string;
-  photographer?: string; // Who took the photo?
+  photographer?: string; 
   albumType: AlbumType;
-  mediaType?: MediaType; // Defaults to 'image'
-  poster?: string; // Cover image for video
-  exif?: ExifInfo; // Optional photography metadata
+  mediaType?: MediaType; 
+  poster?: string; 
+  exif?: ExifInfo; 
 }
 
 export interface WeddingSeries {
   id: string;
   title: string;
   subtitle: string;
-  cover: string; // Cover image for the series card
+  cover: string; 
   date: string;
   photographer: string;
   description: string;
@@ -45,9 +45,9 @@ export interface WeddingSeries {
 
 export interface TravelTrip {
   id: string;
-  country: string; // Used for tab filtering
-  place: string;   // The specific location name (e.g. Kyoto, Yunnan)
-  title: string;   // Display title
+  country: string; 
+  place: string;   
+  title: string;   
   date: string;
   cover: string;
   description: string;
@@ -63,12 +63,21 @@ export interface TimelineEvent {
   photos: Photo[];
 }
 
+export interface ChildTimeline {
+  name: string;
+  nickname: string;
+  birthday: string;
+  avatar?: string;
+  gender: 'boy' | 'girl';
+  events: TimelineEvent[];
+}
+
 export interface Essay {
   id: string;
   content: string;
   date: string;
   from?: string;
-  location?: string | string[]; // Can be string or array of strings
+  location?: string | string[]; 
   images?: string[];
   video?: string[];
   link?: string;

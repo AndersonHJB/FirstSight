@@ -10,7 +10,7 @@ import { WeddingPage } from './pages/WeddingPage';
 import { EssayPage } from './pages/EssayPage'; 
 import { TravelPage } from './pages/TravelPage';
 import { AlbumType } from './types';
-import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './data';
+import { FAMILY_PHOTOS, MULTI_CHILD_TIMELINES } from './data';
 
 const App: React.FC = () => {
   // Router State
@@ -23,11 +23,9 @@ const App: React.FC = () => {
   // Handle router changes
   useEffect(() => {
     const handlePopState = () => {
-      // Parse hash: #/essay?id=123
       const fullHash = window.location.hash.replace('#', '') || '/';
       const [path, search] = fullHash.split('?');
       
-      // Parse params
       const params: Record<string, string> = {};
       if (search) {
         new URLSearchParams(search).forEach((value, key) => {
@@ -39,18 +37,13 @@ const App: React.FC = () => {
       setQueryParams(params);
     };
 
-    // Initialize
     handlePopState();
-
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const navigate = (fullPath: string) => {
     window.location.hash = fullPath;
-    // State update will happen in popstate listener, but we update locally for immediate feedback if needed?
-    // Actually relying on hash change event is safer for consistency, but manually updating state ensures react re-render instantly
-    // Let's do manual update to be sure:
     const [path, search] = fullPath.split('?');
     const params: Record<string, string> = {};
     if (search) {
@@ -86,7 +79,7 @@ const App: React.FC = () => {
           />
         );
       case '/baby':
-        return <TimelinePage events={TIMELINE_EVENTS} />;
+        return <TimelinePage timelines={MULTI_CHILD_TIMELINES} />;
       default:
         return <Home onNavigate={navigate} />;
     }
@@ -110,9 +103,6 @@ const App: React.FC = () => {
         onNavigate={navigate}
       />
 
-      {/* 
-        Hide default global footer for specific immersive pages.
-      */}
       {currentPath !== '/gallery' && currentPath !== '/wedding' && currentPath !== '/travel' && (
         <footer className="bg-white border-t border-stone-100 py-12 text-center">
           <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
