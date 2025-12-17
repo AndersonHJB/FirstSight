@@ -106,7 +106,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
 
       {/* Bottom Info Overlay */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/60 to-transparent pt-32 pb-10 px-6 md:px-12 transition-opacity duration-300 pointer-events-none ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/60 to-transparent pt-32 pb-10 px-6 md:px-12 transition-opacity duration-300 pointer-events-none z-[60] ${showControls ? 'opacity-100' : 'opacity-0'}`}
       >
         <div 
           className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6 pointer-events-auto"
