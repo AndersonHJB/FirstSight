@@ -3,6 +3,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { ESSAY_DATA } from '../data';
 import { MapPin, Clock, User, ExternalLink, PlayCircle, Filter, X } from 'lucide-react';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
+import { LogoAvatar } from '../components/LogoAvatar';
 import { Photo, Essay } from '../types';
 
 interface EssayPageProps {
@@ -155,8 +156,8 @@ export const EssayPage: React.FC<EssayPageProps> = ({ initialEssayId }) => {
                 {/* Header */}
                 <div className="flex justify-between items-start">
                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
-                         <User size={16} />
+                      <div className="w-8 h-8 rounded-full overflow-hidden border border-stone-100 shadow-sm bg-stone-50">
+                         <LogoAvatar className="w-full h-full" />
                       </div>
                       <div className="flex flex-col">
                         <span className="font-serif text-sm font-medium text-ink">{essay.from || 'Me'}</span>
@@ -223,7 +224,9 @@ export const EssayPage: React.FC<EssayPageProps> = ({ initialEssayId }) => {
              <button onClick={() => setSelectedEssay(null)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-200/50 text-stone-400 hover:text-ink"><X size={24} strokeWidth={1.5} /></button>
              
              <div className="flex items-center gap-4 mb-6 border-b border-stone-200 pb-4">
-                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 shrink-0"><User size={24} /></div>
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-stone-100 shadow-sm shrink-0 bg-stone-50">
+                   <LogoAvatar className="w-full h-full" />
+                </div>
                 <div>
                   <h3 className="font-serif text-lg font-medium text-ink">{selectedEssay.from || 'Me'}</h3>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-stone-400 font-sans mt-1">
