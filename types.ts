@@ -4,6 +4,7 @@ export enum AlbumType {
   BABY = 'BABY',
   GALLERY = 'GALLERY',
   WEDDING = 'WEDDING',
+  TRAVEL = 'TRAVEL',
 }
 
 export interface ExifInfo {
@@ -38,6 +39,17 @@ export interface WeddingSeries {
   cover: string; // Cover image for the series card
   date: string;
   photographer: string;
+  description: string;
+  photos: Photo[];
+}
+
+export interface TravelTrip {
+  id: string;
+  country: string; // Used for tab filtering
+  place: string;   // The specific location name (e.g. Kyoto, Yunnan)
+  title: string;   // Display title
+  date: string;
+  cover: string;
   description: string;
   photos: Photo[];
 }

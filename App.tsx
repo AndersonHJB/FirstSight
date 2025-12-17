@@ -8,6 +8,7 @@ import { TimelinePage } from './pages/TimelinePage';
 import { ArtisticGallery } from './pages/ArtisticGallery';
 import { WeddingPage } from './pages/WeddingPage'; 
 import { EssayPage } from './pages/EssayPage'; 
+import { TravelPage } from './pages/TravelPage';
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, TIMELINE_EVENTS } from './data';
 
@@ -70,6 +71,8 @@ const App: React.FC = () => {
         return <EssayPage initialEssayId={queryParams.id} />; 
       case '/gallery':
         return <ArtisticGallery initialPhotoId={queryParams.id} />; 
+      case '/travel':
+        return <TravelPage initialTripId={queryParams.id} />;
       case '/wedding':
         return <WeddingPage initialAlbumId={queryParams.id} />; 
       case '/family':
@@ -110,7 +113,7 @@ const App: React.FC = () => {
       {/* 
         Hide default global footer for specific immersive pages.
       */}
-      {currentPath !== '/gallery' && currentPath !== '/wedding' && (
+      {currentPath !== '/gallery' && currentPath !== '/wedding' && currentPath !== '/travel' && (
         <footer className="bg-white border-t border-stone-100 py-12 text-center">
           <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
         </footer>

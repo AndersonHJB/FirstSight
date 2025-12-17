@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, X, Image, FileText, Heart, Users, ArrowRight, Clock } from 'lucide-react';
-import { ESSAY_DATA, FAMILY_PHOTOS, BABY_PHOTOS, GALLERY_PHOTOS, WEDDING_COLLECTIONS } from '../data';
+import { Search, X, Image, FileText, Heart, Users, ArrowRight, Clock, Map } from 'lucide-react';
+import { ESSAY_DATA, FAMILY_PHOTOS, BABY_PHOTOS, GALLERY_PHOTOS, WEDDING_COLLECTIONS, TRAVEL_TRIPS } from '../data';
 import { createPortal } from 'react-dom';
 
 interface SearchModalProps {
@@ -12,7 +12,7 @@ interface SearchModalProps {
 
 interface SearchResult {
   id: string;
-  type: 'essay' | 'photo' | 'album' | 'wedding';
+  type: 'essay' | 'photo' | 'album' | 'wedding' | 'travel';
   title: string;
   description: string;
   date: string;
@@ -131,7 +131,28 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       }
     });
     
-    // 5. Search Baby Photos (Simple integration)
+    // 5. Search Travel Trips
+    TRAVEL_TRIPS.forEach(trip => {
+      if (
+        trip.title.toLowerCase().includes(lowerQuery) || 
+        trip.country.toLowerCase().includes(lowerQuery) || 
+        trip.place.toLowerCase().includes(lowerQuery) ||
+        trip.description.toLowerCase().includes(lowerQuery)
+      ) {
+        res.push({
+          id: trip.id,
+          type: 'travel',
+          title: trip.title,
+          description: trip.description,
+          date: trip.date,
+          path: `/travel?id=${trip.id}`,
+          matchType: '行万里路',
+          image: trip.cover
+        });
+      }
+    });
+    
+    // 6. Search Baby Photos
     BABY_PHOTOS.forEach(photo => {
       if (photo.title.toLowerCase().includes(lowerQuery) || photo.description.toLowerCase().includes(lowerQuery)) {
          res.push({
@@ -140,7 +161,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
             title: photo.title,
             description: photo.description,
             date: photo.date,
-            path: `/baby`, // Timeline page doesn't support deep linking to photo easily yet, just go to page
+            path: `/baby`, 
             matchType: '成长足迹',
             image: photo.url[0]
          })
@@ -175,7 +196,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
             ref={inputRef}
             type="text"
             className="flex-1 bg-transparent text-xl text-ink placeholder-stone-300 outline-none font-serif"
-            placeholder="搜索回忆、短文、照片..."
+            placeholder="搜索回忆、短文、照片、旅行..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -213,6 +234,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
                       <div className="w-full h-full flex items-center justify-center text-stone-300">
                          {item.type === 'essay' && <FileText size={24} />}
                          {item.type === 'photo' && <Image size={24} />}
+                         {item.type === 'travel' && <Map size={24} />}
                       </div>
                     )}
                   </div>
