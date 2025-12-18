@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -18,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
     { label: '行万里路', path: '/travel', icon: Map },
     { label: '婚纱摄影', path: '/wedding', icon: Heart },
     { label: '家庭影像', path: '/family', icon: Users },
+    { label: '宝贝相册', path: '/baby-album', icon: Library },
     { label: '成长足迹', path: '/baby', icon: Footprints },
   ];
 
@@ -107,7 +108,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
 
       {/* Mobile Overlay */}
       <div className={`fixed inset-0 z-40 bg-paper transition-transform duration-500 ease-in-out md:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex flex-col items-center justify-center h-full space-y-8">
+        <div className="flex flex-col items-center justify-center h-full space-y-8 px-6">
           {navItems.map((item) => {
              const Icon = item.icon;
              const isActive = activeTab === item.path;

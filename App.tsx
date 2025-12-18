@@ -9,6 +9,7 @@ import { ArtisticGallery } from './pages/ArtisticGallery';
 import { WeddingPage } from './pages/WeddingPage'; 
 import { EssayPage } from './pages/EssayPage'; 
 import { TravelPage } from './pages/TravelPage';
+import { BabyAlbum } from './pages/BabyAlbum';
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, MULTI_CHILD_TIMELINES } from './data';
 
@@ -68,6 +69,8 @@ const App: React.FC = () => {
         return <TravelPage initialTripId={queryParams.id} />;
       case '/wedding':
         return <WeddingPage initialAlbumId={queryParams.id} />; 
+      case '/baby-album':
+        return <BabyAlbum />;
       case '/family':
         return (
           <Gallery 
@@ -103,7 +106,7 @@ const App: React.FC = () => {
         onNavigate={navigate}
       />
 
-      {currentPath !== '/gallery' && currentPath !== '/wedding' && currentPath !== '/travel' && (
+      {currentPath !== '/gallery' && currentPath !== '/wedding' && currentPath !== '/travel' && currentPath !== '/baby-album' && (
         <footer className="bg-white border-t border-stone-100 py-12 text-center">
           <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
         </footer>
