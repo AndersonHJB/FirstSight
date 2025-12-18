@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { LETTERS_DATA } from '../data';
 import { Letter } from '../types';
-import { Mail, ArrowLeft, Calendar, User, Tag, Clock } from 'lucide-react';
+import { Mail, ArrowLeft, Calendar, User, Tag, Clock, ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface LetterPageProps {
@@ -11,6 +11,7 @@ interface LetterPageProps {
 
 export const LetterPage: React.FC<LetterPageProps> = ({ initialLetterId }) => {
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (initialLetterId) {
@@ -19,9 +20,20 @@ export const LetterPage: React.FC<LetterPageProps> = ({ initialLetterId }) => {
     }
   }, [initialLetterId]);
 
+  const handleClose = () => {
+    setIsClosing(true);
+    // Allow animation to complete before resetting state
+    setTimeout(() => {
+      setSelectedLetter(null);
+      setIsClosing(false);
+    }, 800);
+  };
+
   // Reset scroll when changing views
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!selectedLetter) {
+        window.scrollTo(0, 0);
+    }
   }, [selectedLetter]);
 
   // --- LIST VIEW ---
@@ -71,7 +83,7 @@ export const LetterPage: React.FC<LetterPageProps> = ({ initialLetterId }) => {
                   </div>
                 </div>
                 
-                {/* Decorative Stamp (Purely Visual) */}
+                {/* Decorative Stamp */}
                 <div className="absolute -top-2 -right-2 w-12 h-12 rotate-12 opacity-20 group-hover:opacity-40 transition-opacity">
                    <div className="w-full h-full border-2 border-dashed border-accent-brown rounded-full flex items-center justify-center text-xs font-serif text-accent-brown font-bold">
                      POST
@@ -87,69 +99,98 @@ export const LetterPage: React.FC<LetterPageProps> = ({ initialLetterId }) => {
 
   // --- DETAIL VIEW ---
   return (
-    <div className="min-h-screen bg-stone-100/50 pt-32 pb-24 animate-fade-in">
+    <div className={`min-h-screen bg-stone-100/80 pt-32 pb-24 transition-opacity duration-500 ${isClosing ? 'pointer-events-none' : ''}`}>
       {/* Detail Navbar */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-100 py-4 px-6 md:px-12 flex items-center justify-between">
-         <button 
-           onClick={() => setSelectedLetter(null)}
-           className="flex items-center gap-2 text-stone-500 hover:text-stone-800 transition-colors group"
-         >
-           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-           <span className="font-serif text-sm uppercase tracking-wider">返回列表</span>
-         </button>
-         <div className="flex items-center gap-4 text-xs font-serif text-stone-400">
-            <span className="hidden sm:inline">From: {selectedLetter.from}</span>
-            <span className="hidden sm:inline">•</span>
-            <span>To: {selectedLetter.to}</span>
-         </div>
-      </div>
+      {!isClosing && (
+        <div className="fixed top-20 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-100 py-4 px-6 md:px-12 flex items-center justify-between animate-fade-in">
+           <button 
+             onClick={handleClose}
+             className="flex items-center gap-2 text-stone-500 hover:text-stone-800 transition-colors group"
+           >
+             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+             <span className="font-serif text-sm uppercase tracking-wider">合上信件</span>
+           </button>
+           <div className="flex items-center gap-4 text-xs font-serif text-stone-400">
+              <span className="hidden sm:inline">From: {selectedLetter.from}</span>
+              <span className="hidden sm:inline">•</span>
+              <span>To: {selectedLetter.to}</span>
+           </div>
+        </div>
+      )}
 
-      <div className="max-w-4xl mx-auto px-4 md:px-8">
-        {/* The Letter "Paper" */}
-        <div className="bg-white shadow-2xl p-8 md:p-16 lg:p-24 relative overflow-hidden">
+      <div className={`max-w-4xl mx-auto px-4 md:px-8 relative ${isClosing ? 'animate-envelope-close' : 'animate-slide-up'}`}>
+        
+        {/* Envelope Flap Decoration for Closing Animation */}
+        {isClosing && (
+           <div 
+             className="absolute top-0 left-0 right-0 h-48 bg-paper-dark shadow-inner z-[60] animate-flap-fold border-b border-stone-200"
+             style={{ perspective: '1000px', clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }}
+           />
+        )}
+
+        {/* The Letter "Paper" Container with Height Control */}
+        <div className="bg-white shadow-2xl relative overflow-hidden transition-all duration-700">
+          
           {/* Subtle Paper Texture Lines */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-               style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px)', backgroundSize: '100% 2.5rem' }} />
+               style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px)', backgroundSize: '100% 3rem' }} />
           
-          {/* Letter Head */}
-          <div className="relative z-10 mb-16 space-y-6">
-            <div className="flex justify-between items-start">
-               <h1 className="font-hand text-4xl md:text-5xl text-ink leading-tight">{selectedLetter.title}</h1>
-               <div className="w-16 h-20 bg-stone-50 border border-stone-200 p-1 hidden sm:block rotate-3 grayscale contrast-125">
-                  <img src={selectedLetter.cover} className="w-full h-full object-cover" />
-               </div>
-            </div>
+          <div className="p-8 md:p-16 lg:p-20 flex flex-col max-h-[80vh]">
             
-            <div className="flex flex-wrap items-center gap-6 text-stone-400 font-serif text-sm border-b border-stone-100 pb-6">
-              <div className="flex items-center gap-2"><Clock size={14}/> {selectedLetter.date}</div>
-              <div className="flex items-center gap-2"><User size={14}/> {selectedLetter.from}</div>
-              {selectedLetter.tags?.map(tag => (
-                <div key={tag} className="flex items-center gap-1"><Tag size={12}/> {tag}</div>
-              ))}
+            {/* Header Area (Fixed at top of paper) */}
+            <div className="relative z-10 mb-8 shrink-0">
+                <div className="flex justify-between items-start mb-6">
+                   <h1 className="font-hand text-4xl md:text-5xl text-ink leading-tight">{selectedLetter.title}</h1>
+                   <div className="w-16 h-20 bg-stone-50 border border-stone-200 p-1 hidden sm:block rotate-3 grayscale contrast-125 shadow-sm">
+                      <img src={selectedLetter.cover} className="w-full h-full object-cover" />
+                   </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-6 text-stone-400 font-serif text-sm border-b border-stone-100 pb-6">
+                  <div className="flex items-center gap-2"><Clock size={14}/> {selectedLetter.date}</div>
+                  <div className="flex items-center gap-2"><User size={14}/> {selectedLetter.from}</div>
+                  {selectedLetter.tags?.map(tag => (
+                    <div key={tag} className="flex items-center gap-1"><Tag size={12}/> {tag}</div>
+                  ))}
+                </div>
+            </div>
+
+            {/* Scrollable Content Area */}
+            <div className="relative flex-1 overflow-y-auto letter-scroll-container pr-2">
+              <article className="relative z-10 prose prose-stone lg:prose-lg max-w-none prose-headings:font-hand prose-headings:text-accent-brown prose-p:font-serif prose-p:leading-[3rem] prose-p:mb-0 prose-blockquote:font-hand prose-blockquote:text-stone-400 prose-a:text-accent-brown prose-strong:text-ink">
+                 <ReactMarkdown>{selectedLetter.content}</ReactMarkdown>
+              </article>
+              {/* Spacer for bottom fading */}
+              <div className="h-20 w-full" />
+            </div>
+
+            {/* Fixed Footer Area (at bottom of paper) */}
+            <div className="relative z-10 mt-4 pt-8 border-t border-stone-100 text-right shrink-0 bg-white/80 backdrop-blur-[2px]">
+               <p className="font-hand text-4xl text-ink mb-2">{selectedLetter.from}</p>
+               <p className="font-serif text-sm text-stone-400 italic">于 {selectedLetter.date}</p>
+            </div>
+
+            {/* Floating indicator to suggest more content below */}
+            <div className="absolute bottom-28 left-1/2 -translate-x-1/2 animate-bounce opacity-20 pointer-events-none">
+                <ChevronDown size={24} />
             </div>
           </div>
 
-          {/* Letter Content */}
-          <article className="relative z-10 prose prose-stone lg:prose-lg max-w-none prose-headings:font-hand prose-headings:text-accent-brown prose-p:font-serif prose-p:leading-loose prose-blockquote:font-hand prose-blockquote:text-stone-400 prose-a:text-accent-brown prose-strong:text-ink">
-             <ReactMarkdown>{selectedLetter.content}</ReactMarkdown>
-          </article>
+          {/* Fading Mask at the bottom of content */}
+          <div className="absolute bottom-32 left-0 right-0 h-16 bg-gradient-to-t from-white/90 to-transparent pointer-events-none z-[5]" />
+        </div>
 
-          {/* Letter Footer */}
-          <div className="relative z-10 mt-20 pt-12 border-t border-stone-100 text-right">
-             <p className="font-hand text-3xl text-ink mb-2">{selectedLetter.from}</p>
-             <p className="font-serif text-sm text-stone-400 italic">于 {selectedLetter.date}</p>
+        {/* Bottom Closing Button */}
+        {!isClosing && (
+          <div className="mt-12 text-center">
+             <button 
+               onClick={handleClose}
+               className="px-10 py-3 bg-ink text-white font-serif rounded-sm hover:bg-accent-brown transition-all shadow-lg hover:scale-105 active:scale-95"
+             >
+               合上信封
+             </button>
           </div>
-        </div>
-
-        {/* Bottom Actions */}
-        <div className="mt-12 text-center">
-           <button 
-             onClick={() => setSelectedLetter(null)}
-             className="px-8 py-3 bg-ink text-white font-serif rounded-sm hover:bg-accent-brown transition-colors shadow-lg"
-           >
-             合上信件
-           </button>
-        </div>
+        )}
       </div>
     </div>
   );
