@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library, Mail } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -13,6 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
 
   const navItems = [
     { label: '首页', path: '/', icon: Home },
+    { label: '见字如面', path: '/letters', icon: Mail },
     { label: '即刻短文', path: '/essay', icon: Feather },
     { label: '画廊', path: '/gallery', icon: Image },
     { label: '行万里路', path: '/travel', icon: Map },
@@ -48,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-6">
               {/* Menu Items */}
-              <div className="flex items-center space-x-6 lg:space-x-10">
+              <div className="flex items-center space-x-6 lg:space-x-8">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.path;
@@ -56,12 +57,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
                     <button
                       key={item.path}
                       onClick={() => handleNav(item.path)}
-                      className={`relative group flex items-center gap-2 font-serif text-base py-2 transition-colors duration-300
+                      className={`relative group flex items-center gap-1.5 font-serif text-sm lg:text-base py-2 transition-colors duration-300
                         ${isActive ? 'text-ink' : 'text-stone-400 hover:text-stone-600'}
                       `}
                     >
                       <Icon 
-                        size={18} 
+                        size={16} 
                         strokeWidth={1.5} 
                         className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} 
                       />

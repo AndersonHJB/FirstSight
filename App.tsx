@@ -10,6 +10,7 @@ import { WeddingPage } from './pages/WeddingPage';
 import { EssayPage } from './pages/EssayPage'; 
 import { TravelPage } from './pages/TravelPage';
 import { BabyAlbum } from './pages/BabyAlbum';
+import { LetterPage } from './pages/LetterPage';
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, MULTI_CHILD_TIMELINES } from './data';
 
@@ -63,6 +64,8 @@ const App: React.FC = () => {
         return <Home onNavigate={navigate} />;
       case '/essay':
         return <EssayPage initialEssayId={queryParams.id} />; 
+      case '/letters':
+        return <LetterPage initialLetterId={queryParams.id} />;
       case '/gallery':
         return <ArtisticGallery initialPhotoId={queryParams.id} />; 
       case '/travel':

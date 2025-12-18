@@ -8,8 +8,8 @@ export enum AlbumType {
 }
 
 export interface ExifInfo {
-  device?: string; // e.g. iPhone 13 Pro
-  params?: string; // e.g. 26mm f1.5
+  device?: string;
+  params?: string;
   iso?: string;
 }
 
@@ -81,6 +81,17 @@ export interface Essay {
   images?: string[];
   video?: string[];
   link?: string;
+}
+
+export interface Letter {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  from: string;
+  to: string;
+  tags?: string[];
+  cover?: string;
 }
 
 export type NavItem = {

@@ -6,3 +6,4 @@ export * from './gallery';
 export * from './wedding';
 export * from './essay';
 export * from './travel';
+export * from './letters';
