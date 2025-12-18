@@ -3,6 +3,15 @@ import { AlbumType, Photo } from '../types';
 
 const FAMILY_DATA = [
   {
+    id: 'f-local-sample',
+    url: ['/photos/family/IMG_001.jpg'], // 这是一个 public 路径示例
+    title: '本地照片示例',
+    date: '2024.03.20',
+    location: '家',
+    description: '要使用自己的照片，请将图片放入项目根目录下的 public 文件夹中，然后在这里使用以 / 开头的路径即可。',
+    tags: ['本地', '说明'],
+  },
+  {
     id: 'v1',
     url: ['https://github.com/AndersonHJB/AndersonHJB.github.io/releases/download/V0.0.4/03-why-code.mp4'],
     mediaType: 'video' as const,
@@ -131,7 +140,7 @@ const FAMILY_DATA = [
     title: '美味早餐',
     date: '2023.08.15',
     location: '家中',
-    description: '用心摆盘的早餐，即使只是简单的煎蛋和吐司，也能开启元气满满的一天。',
+    description: '用心摆盘的早餐，即使只是简单的煎蛋 and 吐司，也能开启元气满满的一天。',
     tags: ['美食', '早餐', '日常'],
   },
    {
