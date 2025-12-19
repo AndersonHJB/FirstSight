@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChildTimeline, Photo } from '../types';
 import { Lightbox } from '../components/Lightbox';
-import { Sparkles, Layers, PlayCircle, Baby, Heart } from 'lucide-react';
+import { Sparkles, Layers, PlayCircle, Baby, Heart, LayoutGrid, ListTree, CalendarDays } from 'lucide-react';
 
 interface TimelinePageProps {
   timelines: ChildTimeline[];
@@ -16,10 +16,22 @@ interface Slide {
 export const TimelinePage: React.FC<TimelinePageProps> = ({ timelines }) => {
   const [activeChildIndex, setActiveChildIndex] = useState(0);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(-1);
+  const [viewMode, setViewMode] = useState<'timeline' | 'panorama'>('timeline');
 
   const activeChild = timelines[activeChildIndex];
 
-  // Flatten all photos for current child
+  // Flatten all photos for current child with their context (date/age)
+  const allChildPhotos = useMemo(() => {
+    return activeChild.events.flatMap(event => 
+      event.photos.map(photo => ({
+        ...photo,
+        eventDate: event.date,
+        eventAge: event.age
+      }))
+    );
+  }, [activeChild]);
+
+  // Create slides for lightbox (including multi-url photos)
   const slides: Slide[] = useMemo(() => {
     return activeChild.events.flatMap(event => 
       event.photos.flatMap(photo => 
@@ -49,7 +61,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ timelines }) => {
 
   const activeSlide = currentSlideIndex >= 0 ? slides[currentSlideIndex] : null;
 
-  // Render photo grid based on count
+  // Render individual photo grid for standard timeline view
   const renderPhotoGrid = (photos: Photo[]) => {
     const count = photos.length;
     let gridClass = "grid gap-3";
@@ -96,7 +108,6 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ timelines }) => {
                 {photo.url.length}
               </div>
             )}
-            
             <div className="absolute inset-0 ring-1 ring-inset ring-black/5 pointer-events-none" />
           </div>
         ))}
@@ -108,7 +119,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ timelines }) => {
     <div className="min-h-screen bg-paper pt-32 pb-24 animate-fade-in">
       
       {/* Header */}
-      <div className="max-w-3xl mx-auto px-6 text-center mb-16">
+      <div className="max-w-3xl mx-auto px-6 text-center mb-12">
          <div className="inline-flex items-center justify-center p-4 bg-stone-100 rounded-full text-accent-brown mb-6">
            <Sparkles size={20} strokeWidth={1.5} />
          </div>
@@ -117,7 +128,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ timelines }) => {
       </div>
 
       {/* Child Switcher Tabs */}
-      <div className="max-w-2xl mx-auto px-6 mb-16">
+      <div className="max-w-2xl mx-auto px-6 mb-8">
          <div className="flex justify-center gap-4 bg-white/50 p-2 rounded-full border border-stone-200 shadow-sm overflow-x-auto scrollbar-hide">
             {timelines.map((child, index) => (
                <button
@@ -139,63 +150,142 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({ timelines }) => {
          </div>
       </div>
 
-      {/* Timeline Content */}
-      <div key={activeChild.name} className="max-w-4xl mx-auto px-4 md:px-12 animate-fade-in">
+      {/* View Mode Toggle */}
+      <div className="flex justify-center mb-16">
+         <div className="inline-flex bg-stone-200/50 p-1 rounded-lg border border-stone-200/60 shadow-inner">
+            <button 
+              onClick={() => setViewMode('timeline')}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-serif transition-all
+                ${viewMode === 'timeline' ? 'bg-white text-ink shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}
+            >
+              <ListTree size={14} /> 线性轨迹
+            </button>
+            <button 
+              onClick={() => setViewMode('panorama')}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-serif transition-all
+                ${viewMode === 'panorama' ? 'bg-white text-ink shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}
+            >
+              <LayoutGrid size={14} /> 时光全景
+            </button>
+         </div>
+      </div>
+
+      {/* Content Area */}
+      <div key={`${activeChild.name}-${viewMode}`} className="max-w-6xl mx-auto px-4 md:px-12 animate-fade-in">
         
-        {/* Born Card with Gender Aware Styling */}
-        <div className={`mb-20 p-8 rounded-sm text-center relative overflow-hidden transition-colors duration-700
-          ${activeChild.gender === 'girl' ? 'bg-rose-50/40 border border-rose-100' : 'bg-blue-50/40 border border-blue-100'}
-        `}>
-           <div className={`absolute top-0 right-0 p-4 opacity-5 ${activeChild.gender === 'girl' ? 'text-rose-900' : 'text-blue-900'}`}>
-              <Heart size={80} fill="currentColor" />
-           </div>
-           <h2 className="font-hand text-4xl text-ink mb-2">出生档案</h2>
-           <div className="flex justify-center gap-12 mt-6">
-              <div className="flex flex-col">
-                 <span className="text-[10px] text-stone-400 uppercase tracking-widest mb-1">诞生日</span>
-                 <span className="font-serif text-lg">{activeChild.birthday}</span>
-              </div>
-              <div className="flex flex-col">
-                 <span className="text-[10px] text-stone-400 uppercase tracking-widest mb-1">姓名</span>
-                 <span className="font-serif text-lg">{activeChild.name}</span>
-              </div>
-           </div>
-        </div>
+        {viewMode === 'timeline' ? (
+          /* ==========================================
+             Standard Timeline View 
+             ========================================== */
+          <div className="max-w-4xl mx-auto">
+             {/* Born Card */}
+             <div className={`mb-20 p-8 rounded-sm text-center relative overflow-hidden transition-colors duration-700
+               ${activeChild.gender === 'girl' ? 'bg-rose-50/40 border border-rose-100' : 'bg-blue-50/40 border border-blue-100'}
+             `}>
+                <div className={`absolute top-0 right-0 p-4 opacity-5 ${activeChild.gender === 'girl' ? 'text-rose-900' : 'text-blue-900'}`}>
+                   <Heart size={80} fill="currentColor" />
+                </div>
+                <h2 className="font-hand text-4xl text-ink mb-2">出生档案</h2>
+                <div className="flex justify-center gap-12 mt-6">
+                   <div className="flex flex-col">
+                      <span className="text-[10px] text-stone-400 uppercase tracking-widest mb-1">诞生日</span>
+                      <span className="font-serif text-lg">{activeChild.birthday}</span>
+                   </div>
+                   <div className="flex flex-col">
+                      <span className="text-[10px] text-stone-400 uppercase tracking-widest mb-1">姓名</span>
+                      <span className="font-serif text-lg">{activeChild.name}</span>
+                   </div>
+                </div>
+             </div>
 
-        {/* Timeline Path */}
-        <div className="relative border-l border-dashed border-stone-300 ml-4 md:ml-0 space-y-24 pb-12">
-          {activeChild.events.map((event) => (
-            <div key={event.id} className="relative pl-12 md:pl-16 group">
-               
-               {/* Marker */}
-               <div className={`absolute left-[-6px] top-2 w-3 h-3 rounded-full bg-paper border-2 transition-colors z-10
-                 ${activeChild.gender === 'girl' ? 'border-rose-300 group-hover:bg-rose-300' : 'border-blue-300 group-hover:bg-blue-300'}
-               `} />
+             {/* Timeline Path */}
+             <div className="relative border-l border-dashed border-stone-300 ml-4 md:ml-0 space-y-24 pb-12">
+               {activeChild.events.map((event) => (
+                 <div key={event.id} className="relative pl-12 md:pl-16 group">
+                    <div className={`absolute left-[-6px] top-2 w-3 h-3 rounded-full bg-paper border-2 transition-colors z-10
+                      ${activeChild.gender === 'girl' ? 'border-rose-300 group-hover:bg-rose-300' : 'border-blue-300 group-hover:bg-blue-300'}
+                    `} />
+                    <div className="absolute -left-20 top-1 hidden md:flex flex-col items-end pr-8 w-24">
+                      <span className="font-hand text-xl text-ink">{event.date}</span>
+                      {event.age && <span className="font-serif text-[10px] text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full mt-1 whitespace-nowrap">{event.age}</span>}
+                    </div>
+                    <div className="md:hidden flex items-baseline gap-3 mb-3">
+                       <span className="font-hand text-xl text-ink">{event.date}</span>
+                       {event.age && <span className="font-serif text-xs text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">{event.age}</span>}
+                    </div>
+                    <div className="bg-white p-6 md:p-8 shadow-sm rounded-sm border border-stone-100/50 hover:shadow-md transition-shadow">
+                      <h3 className="font-serif text-2xl text-ink mb-4">{event.title}</h3>
+                      <p className="font-serif text-stone-600 mb-8 leading-relaxed font-light">{event.description}</p>
+                      {renderPhotoGrid(event.photos)}
+                    </div>
+                 </div>
+               ))}
+             </div>
+          </div>
+        ) : (
+          /* ==========================================
+             Panorama Grid View 
+             ========================================== */
+          <div className="animate-fade-in">
+             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
+                {allChildPhotos.map((photo, idx) => (
+                  <div 
+                    key={photo.id}
+                    onClick={() => handlePhotoClick(photo)}
+                    className="relative aspect-square overflow-hidden bg-stone-100 cursor-pointer group rounded-sm shadow-sm hover:shadow-xl transition-all duration-500"
+                  >
+                     {photo.mediaType === 'video' ? (
+                       <div className="w-full h-full relative">
+                          <video 
+                            src={photo.url[0]} 
+                            poster={photo.poster}
+                            className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700" 
+                            muted
+                            loop
+                            playsInline
+                            onMouseOver={(e) => e.currentTarget.play()}
+                            onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                             <PlayCircle size={32} className="text-white/80" />
+                          </div>
+                       </div>
+                     ) : (
+                       <img 
+                         src={photo.url[0]} 
+                         alt={photo.title}
+                         className="w-full h-full object-cover filter saturate-[0.8] group-hover:saturate-100 group-hover:scale-110 transition-all duration-700"
+                       />
+                     )}
 
-               {/* Date Label (Desktop) */}
-               <div className="absolute -left-20 top-1 hidden md:flex flex-col items-end pr-8 w-24">
-                 <span className="font-hand text-xl text-ink">{event.date}</span>
-                 {event.age && <span className="font-serif text-[10px] text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full mt-1 whitespace-nowrap">{event.age}</span>}
-               </div>
-               
-               {/* Mobile Date */}
-               <div className="md:hidden flex items-baseline gap-3 mb-3">
-                  <span className="font-hand text-xl text-ink">{event.date}</span>
-                  {event.age && <span className="font-serif text-xs text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">{event.age}</span>}
-               </div>
+                     {/* Info Overlay */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3 flex flex-col justify-end">
+                        <div className="flex items-center gap-1.5 text-[9px] text-white/70 font-sans tracking-widest uppercase mb-1">
+                           <CalendarDays size={10} /> {photo.eventDate}
+                        </div>
+                        <h4 className="text-white font-serif text-sm truncate">{photo.title}</h4>
+                        {(photo as any).eventAge && (
+                           <span className="mt-1 inline-block bg-white/20 backdrop-blur-md px-1.5 py-0.5 rounded-[2px] text-[8px] text-white self-start">
+                              {(photo as any).eventAge}
+                           </span>
+                        )}
+                     </div>
 
-               {/* Content Card */}
-               <div className="bg-white p-6 md:p-8 shadow-sm rounded-sm border border-stone-100/50 hover:shadow-md transition-shadow">
-                 <h3 className="font-serif text-2xl text-ink mb-4">{event.title}</h3>
-                 <p className="font-serif text-stone-600 mb-8 leading-relaxed font-light">{event.description}</p>
-                 
-                 {/* Adaptive Grid Rendering */}
-                 {renderPhotoGrid(event.photos)}
-               </div>
-
-            </div>
-          ))}
-        </div>
+                     {/* Multi-photo Indicator */}
+                     {photo.mediaType !== 'video' && photo.url.length > 1 && (
+                        <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[8px] px-1.5 py-0.5 rounded-sm flex items-center gap-1 font-sans">
+                           <Layers size={8} /> {photo.url.length}
+                        </div>
+                     )}
+                  </div>
+                ))}
+             </div>
+             
+             <div className="mt-20 text-center">
+                <p className="font-hand text-2xl text-stone-300">每一个像素，都是长大的证据。</p>
+             </div>
+          </div>
+        )}
       </div>
 
       {activeSlide && (
