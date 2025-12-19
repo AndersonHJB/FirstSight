@@ -1,201 +1,359 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { FAMILY_PHOTOS, BABY_PHOTOS, GALLERY_PHOTOS, TRAVEL_TRIPS } from '../data';
-import { Photo } from '../types';
+import { FAMILY_PHOTOS, BABY_PHOTOS, GALLERY_PHOTOS, TRAVEL_TRIPS, ESSAY_DATA, LETTERS_DATA } from '../data';
+import { Photo, Essay, Letter, AlbumType } from '../types';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
-import { Star, Navigation2, Compass, Play, Pause, Info, Wind } from 'lucide-react';
+import { Star, Navigation2, Compass, Play, Pause, Info, Wind, Sparkles, Mail, FileText, Camera } from 'lucide-react';
 
-interface StarNode extends Photo {
+// 统一的星图节点接口
+interface ConstellationNode {
+  id: string;
+  type: 'photo' | 'essay' | 'letter';
+  title: string;
+  date: string;
+  description: string;
+  url: string;
+  originalData: Photo | Essay | Letter;
+  // 视觉属性
   x: number;
   y: number;
   size: number;
-  opacity: number;
+  glowColor: string;
+  pulseDelay: string;
 }
 
 export const ConstellationPage: React.FC = () => {
-  const [nodes, setNodes] = useState<StarNode[]>([]);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
+  const [nodes, setNodes] = useState<ConstellationNode[]>([]);
+  const [selectedNodeIndex, setSelectedNodeIndex] = useState<number>(-1);
   const [isRoaming, setIsRoaming] = useState(false);
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 聚合所有照片并按日期排序
-  const allPhotosSorted = useMemo(() => {
+  // 1. 聚合并归一化所有数据
+  const allMemories = useMemo(() => {
     const travelPhotos = TRAVEL_TRIPS.flatMap(t => t.photos);
-    const combined = [...FAMILY_PHOTOS, ...BABY_PHOTOS, ...GALLERY_PHOTOS, ...travelPhotos];
-    return combined.sort((a, b) => new Date(a.date.replace(/\./g, '-')).getTime() - new Date(b.date.replace(/\./g, '-')).getTime());
+    
+    // 归一化照片
+    const photoNodes = [...FAMILY_PHOTOS, ...BABY_PHOTOS, ...GALLERY_PHOTOS, ...travelPhotos].map(p => ({
+      id: p.id,
+      type: 'photo' as const,
+      title: p.title,
+      date: p.date,
+      description: p.description,
+      url: p.url[0],
+      originalData: p
+    }));
+
+    // 归一化短文
+    const essayNodes = ESSAY_DATA.map(e => ({
+      id: e.id,
+      type: 'essay' as const,
+      title: e.from || '随感',
+      date: e.date.split(' ')[0],
+      description: e.content,
+      url: e.images?.[0] || '', // 可能没图
+      originalData: e
+    }));
+
+    // 归一化家书
+    const letterNodes = LETTERS_DATA.map(l => ({
+      id: l.id,
+      type: 'letter' as const,
+      title: l.title,
+      date: l.date,
+      description: l.content,
+      url: l.cover || '',
+      originalData: l
+    }));
+
+    // 按日期排序
+    return [...photoNodes, ...essayNodes, ...letterNodes].sort((a, b) => {
+      const dateA = new Date(a.date.replace(/\./g, '-')).getTime();
+      const dateB = new Date(b.date.replace(/\./g, '-')).getTime();
+      return dateA - dateB;
+    });
   }, []);
 
-  // 生成星座布局
+  // 2. 计算星系布局
   useEffect(() => {
-    const generatedNodes = allPhotosSorted.map((photo, index) => ({
-      ...photo,
-      // 沿着正弦波路径分布，模拟银河
-      x: index * 300 + (Math.random() - 0.5) * 150 + 400,
-      y: 400 + Math.sin(index * 0.8) * 200 + (Math.random() - 0.5) * 100,
-      size: 4 + Math.random() * 6,
-      opacity: 0.4 + Math.random() * 0.6
-    }));
-    setNodes(generatedNodes);
-  }, [allPhotosSorted]);
+    const generated = allMemories.map((item, index) => {
+      // 颜色映射
+      let glow = '#60a5fa'; // 默认蓝色 (照片)
+      if (item.type === 'essay') glow = '#fbbf24'; // 琥珀色 (短文)
+      if (item.type === 'letter') glow = '#f472b6'; // 粉色 (家书)
 
-  // 漫游逻辑
+      return {
+        ...item,
+        // 银河螺旋分布公式
+        x: index * 280 + Math.cos(index * 0.3) * 150 + 500,
+        y: 450 + Math.sin(index * 0.3) * 200 + (Math.random() - 0.5) * 100,
+        size: item.type === 'letter' ? 12 : (item.type === 'essay' ? 8 : 6),
+        glowColor: glow,
+        pulseDelay: `${Math.random() * 4}s`
+      };
+    });
+    setNodes(generated);
+  }, [allMemories]);
+
+  // 3. 漫游逻辑
   useEffect(() => {
-    let interval: number;
-    if (isRoaming && scrollRef.current) {
-      interval = window.setInterval(() => {
-        if (scrollRef.current) {
-          scrollRef.current.scrollLeft += 1.5;
-          // 如果到头了就停止
-          if (scrollRef.current.scrollLeft >= scrollRef.current.scrollWidth - window.innerWidth) {
-            setIsRoaming(false);
-          }
+    let frame: number;
+    const move = () => {
+      if (isRoaming && scrollRef.current) {
+        scrollRef.current.scrollLeft += 1.2;
+        if (scrollRef.current.scrollLeft >= scrollRef.current.scrollWidth - window.innerWidth) {
+          setIsRoaming(false);
         }
-      }, 16);
-    }
-    return () => clearInterval(interval);
+      }
+      frame = requestAnimationFrame(move);
+    };
+    frame = requestAnimationFrame(move);
+    return () => cancelAnimationFrame(frame);
   }, [isRoaming]);
 
   const handleNodeClick = (index: number) => {
-    setSelectedPhotoIndex(index);
+    const node = nodes[index];
+    if (node.type === 'photo') {
+      setSelectedNodeIndex(index);
+    } else {
+      // 短文或家书直接跳转页面（模拟真实业务逻辑）
+      const path = node.type === 'essay' ? `/essay?id=${node.id}` : `/letters?id=${node.id}`;
+      window.location.hash = path;
+    }
     setIsRoaming(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c14] overflow-hidden relative selection:bg-blue-900/30">
-      {/* 墨蓝纸张纹理叠加 */}
-      <div className="absolute inset-0 opacity-[0.15] pointer-events-none mix-blend-overlay" 
-           style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")' }} />
+    <div className="min-h-screen bg-[#02040a] overflow-hidden relative select-none">
       
-      {/* 动态背景星尘 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      {/* 极深空背景与动态星云 */}
+      <div className="absolute inset-0 z-0">
+         {/* 星云 1 */}
+         <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] opacity-20 mix-blend-screen animate-float pointer-events-none"
+              style={{ background: 'radial-gradient(circle at 30% 40%, #1e1b4b 0%, transparent 50%), radial-gradient(circle at 70% 60%, #312e81 0%, transparent 50%)' }} />
+         {/* 星云 2 */}
+         <div className="absolute inset-0 opacity-10 mix-blend-color-dodge animate-pulse pointer-events-none"
+              style={{ background: 'radial-gradient(circle at 50% 50%, #4338ca 0%, transparent 70%)', animationDuration: '8s' }} />
+         
+         {/* 随机流星 */}
+         {[...Array(5)].map((_, i) => (
+           <div key={i} className="shooting-star" style={{ top: `${Math.random() * 50}%`, left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 10}s` }} />
+         ))}
+
+         {/* 动态尘埃光点 */}
+         <div className="absolute inset-0 opacity-30">
+            {[...Array(50)].map((_, i) => (
+              <div key={i} 
+                   className="absolute bg-white rounded-full animate-twinkle" 
+                   style={{ 
+                     width: '1px', height: '1px', 
+                     top: `${Math.random() * 100}%`, 
+                     left: `${Math.random() * 100}%`,
+                     animationDelay: `${Math.random() * 5}s`
+                   }} />
+            ))}
+         </div>
       </div>
 
-      {/* 页面标题 */}
-      <div className="fixed top-28 left-0 right-0 z-20 px-8 flex justify-between items-end pointer-events-none">
-        <div className="animate-fade-in">
+      {/* 头部信息 */}
+      <div className="fixed top-28 left-0 right-0 z-20 px-10 flex justify-between items-start pointer-events-none">
+        <div className="animate-fade-in group pointer-events-auto">
            <div className="flex items-center gap-3 text-blue-400 mb-2">
-              <Compass size={18} className="animate-spin" style={{ animationDuration: '10s' }} />
-              <span className="font-serif text-[10px] tracking-[0.4em] uppercase opacity-60 text-white">Coordinate: Time & Love</span>
+              <Sparkles size={16} className="animate-pulse" />
+              <span className="font-serif text-[10px] tracking-[0.5em] uppercase text-white/50">Universal Memory Constellation</span>
            </div>
-           <h1 className="font-hand text-5xl md:text-6xl text-white/90">时光星图</h1>
-        </div>
-        <div className="hidden md:block text-right animate-fade-in opacity-40">
-           <p className="font-serif text-sm text-white italic">“散落在岁月里的，不是尘埃，是星光。”</p>
+           <h1 className="font-hand text-6xl text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">时光星图</h1>
+           <div className="mt-4 flex gap-4 text-[9px] font-sans tracking-widest text-white/30 uppercase">
+              <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_5px_#60a5fa]" /> 影像</span>
+              <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_5px_#fbbf24]" /> 短文</span>
+              <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-pink-400 shadow-[0_0_5px_#f472b6]" /> 家书</span>
+           </div>
         </div>
       </div>
 
-      {/* 主画布容器 */}
+      {/* 滚动画布 */}
       <div 
         ref={scrollRef}
-        className="relative w-full h-screen overflow-x-auto overflow-y-hidden scrollbar-hide cursor-grab active:cursor-grabbing"
+        className="relative w-full h-screen overflow-x-auto overflow-y-hidden scrollbar-hide cursor-grab active:cursor-grabbing z-10"
       >
         <div 
-          className="relative h-full transition-transform duration-1000 ease-out"
-          style={{ width: `${nodes.length * 300 + 1000}px` }}
+          className="relative h-full"
+          style={{ width: `${nodes.length * 280 + 1200}px` }}
         >
-          {/* 连接线 - SVG */}
+          {/* 路径连接线 */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
             <path 
               d={`M ${nodes.map(n => `${n.x} ${n.y}`).join(' L ')}`}
               fill="none"
-              stroke="url(#lineGradient)"
-              strokeWidth="1"
-              strokeDasharray="4 8"
-              className="animate-float"
+              stroke="url(#galaxyGradient)"
+              strokeWidth="0.5"
+              strokeDasharray="2 6"
             />
             <defs>
-              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="galaxyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#1e3a8a" />
-                <stop offset="50%" stopColor="#3b82f6" />
+                <stop offset="50%" stopColor="#6366f1" />
                 <stop offset="100%" stopColor="#1e3a8a" />
               </linearGradient>
             </defs>
           </svg>
 
-          {/* 星点/照片节点 */}
+          {/* 节点渲染 */}
           {nodes.map((node, idx) => (
             <div
-              key={node.id}
-              className="absolute group transition-all duration-700"
+              key={`${node.id}-${idx}`}
+              className="absolute group transition-all duration-1000 ease-out"
               style={{ 
                 left: `${node.x}px`, 
                 top: `${node.y}px`,
-                zIndex: hoveredNode === node.id ? 50 : 10
+                zIndex: hoveredNodeId === node.id ? 100 : 10
               }}
-              onMouseEnter={() => setHoveredNode(node.id)}
-              onMouseLeave={() => setHoveredNode(null)}
+              onMouseEnter={() => setHoveredNodeId(node.id)}
+              onMouseLeave={() => setHoveredNodeId(null)}
               onClick={() => handleNodeClick(idx)}
             >
-              {/* 核心光点 */}
+              {/* 星点本体 */}
               <div 
-                className={`rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] group-hover:shadow-[0_0_30px_rgba(255,255,255,0.8)]
-                  ${hoveredNode === node.id ? 'bg-white scale-[2.5]' : 'bg-blue-400 scale-100'}`}
-                style={{ width: `${node.size}px`, height: `${node.size}px`, opacity: node.opacity }}
-              />
-
-              {/* 悬浮预览照片 */}
-              <div className={`absolute -top-32 left-1/2 -translate-x-1/2 w-40 transition-all duration-500 pointer-events-none
-                ${hoveredNode === node.id ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-90'}`}>
-                <div className="bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-2xl rotate-3">
-                   <div className="aspect-square rounded-full overflow-hidden border border-white/30">
-                      <img src={node.url[0]} className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all" alt="" />
-                   </div>
-                </div>
-                <div className="mt-4 text-center">
-                   <p className="text-white text-[10px] font-hand tracking-widest whitespace-nowrap mb-1">{node.title}</p>
-                   <p className="text-blue-300/60 text-[8px] font-sans">{node.date}</p>
-                </div>
+                className="rounded-full cursor-pointer transition-all duration-500 relative"
+                style={{ 
+                  width: `${node.size}px`, 
+                  height: `${node.size}px`, 
+                  backgroundColor: node.glowColor,
+                  boxShadow: `0 0 ${hoveredNodeId === node.id ? '30px' : '15px'} ${node.glowColor}`,
+                  animation: `constellation-pulse 4s ease-in-out infinite ${node.pulseDelay}`
+                }}
+              >
+                {/* 悬浮时的扩散光圈 */}
+                <div className={`absolute inset-[-10px] border border-white/10 rounded-full transition-transform duration-1000 
+                  ${hoveredNodeId === node.id ? 'scale-150 opacity-0' : 'scale-0 opacity-0'}`} />
               </div>
 
-              {/* 节点名称（常显） */}
-              <div className={`absolute top-6 left-1/2 -translate-x-1/2 transition-opacity duration-500 ${hoveredNode ? 'opacity-0' : 'opacity-20'}`}>
-                 <span className="text-[8px] text-white font-serif tracking-tighter whitespace-nowrap uppercase rotate-90 origin-left">{node.date.split('.')[1] || '01'}-STATION</span>
+              {/* 悬浮详情面板 */}
+              <div className={`absolute bottom-full mb-8 left-1/2 -translate-x-1/2 w-56 transition-all duration-500 pointer-events-none
+                ${hoveredNodeId === node.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+                
+                <div className="bg-[#0f172a]/80 backdrop-blur-xl p-3 rounded-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                   {/* 预览媒体/图标 */}
+                   <div className="aspect-video mb-3 rounded-lg overflow-hidden bg-white/5 relative flex items-center justify-center">
+                      {node.url ? (
+                        <img src={node.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="" />
+                      ) : (
+                        <div className="text-white/20">
+                           {node.type === 'essay' ? <FileText size={32} /> : <Mail size={32} />}
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2">
+                         {node.type === 'photo' && <Camera size={12} className="text-white/50" />}
+                         {node.type === 'essay' && <FileText size={12} className="text-amber-400" />}
+                         {node.type === 'letter' && <Mail size={12} className="text-pink-400" />}
+                      </div>
+                   </div>
+                   
+                   {/* 文本内容 */}
+                   <div className="px-1">
+                      <p className="text-white text-xs font-serif truncate mb-1">{node.title}</p>
+                      <p className="text-white/40 text-[9px] line-clamp-2 font-serif leading-relaxed mb-2 italic">
+                         {node.description.substring(0, 50)}...
+                      </p>
+                      <div className="flex justify-between items-center border-t border-white/5 pt-2">
+                         <span className="text-[8px] text-white/30 font-sans tracking-widest uppercase">{node.date}</span>
+                         <span className="text-[8px] text-blue-400 font-sans tracking-widest uppercase">Click to open</span>
+                      </div>
+                   </div>
+                </div>
+
+                {/* 连接线装饰 */}
+                <div className="h-8 w-px bg-gradient-to-t from-white/20 to-transparent mx-auto mt-0" />
+              </div>
+
+              {/* 装饰性文字标签 (常显) */}
+              <div className={`absolute top-6 left-1/2 -translate-x-1/2 transition-all duration-700 pointer-events-none
+                ${hoveredNodeId ? 'opacity-0 scale-75' : 'opacity-20 scale-100'}`}>
+                 <span className="text-[7px] text-white font-serif tracking-[0.3em] whitespace-nowrap uppercase rotate-90 origin-left">
+                   {node.type.toUpperCase()}-{node.date.split('.')[1] || 'XX'}
+                 </span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* 底部控制栏 */}
-      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-black/40 backdrop-blur-xl px-6 py-3 rounded-full border border-white/10 shadow-2xl">
+      {/* 控制中心 */}
+      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-black/60 backdrop-blur-2xl px-8 py-4 rounded-full border border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
          <button 
            onClick={() => setIsRoaming(!isRoaming)}
-           className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-serif transition-all
-             ${isRoaming ? 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'text-white/60 hover:text-white'}`}
+           className={`flex items-center gap-3 px-5 py-2 rounded-full text-xs font-serif transition-all duration-500
+             ${isRoaming ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.6)]' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
          >
            {isRoaming ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
-           <span>{isRoaming ? '漫游中...' : '开启漫游'}</span>
+           <span className="tracking-widest">{isRoaming ? '星际漫游中' : '开启时光巡航'}</span>
          </button>
          
-         <div className="w-px h-4 bg-white/10" />
+         <div className="w-px h-5 bg-white/10 mx-2" />
          
-         <div className="flex items-center gap-2 text-white/40 text-[10px] font-sans tracking-widest uppercase">
-            <Wind size={12} className="animate-pulse" />
-            <span>左右滑动探索星河</span>
+         <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center">
+               <span className="text-[10px] text-white/30 font-sans uppercase tracking-tighter">Memories</span>
+               <span className="text-xs text-white/80 font-serif font-bold">{allMemories.length}</span>
+            </div>
+            <div className="w-px h-4 bg-white/5" />
+            <div className="flex flex-col items-center">
+               <span className="text-[10px] text-white/30 font-sans uppercase tracking-tighter">Eras</span>
+               <span className="text-xs text-white/80 font-serif font-bold">{new Set(allMemories.map(m => m.date.substring(0,4))).size}</span>
+            </div>
          </div>
       </div>
 
-      {/* 侧边信息指示 */}
-      <div className="fixed bottom-10 left-10 hidden lg:flex flex-col gap-1 text-white/20 font-serif italic text-xs">
-         <span>Total Stars: {nodes.length}</span>
-         <span>Path: Chronological Galaxy</span>
+      {/* 深度提示 */}
+      <div className="fixed bottom-10 left-10 hidden lg:flex flex-col gap-1 text-white/10 font-serif italic text-[10px] tracking-widest uppercase">
+         <span>Galactic Coordinate: Love_Core_01</span>
+         <span>Observatory: Bornforthis Timeless</span>
       </div>
 
-      {/* 灯箱集成 */}
-      {selectedPhotoIndex >= 0 && (
+      {/* 灯箱 */}
+      {selectedNodeIndex >= 0 && (
         <ImmersiveLightbox 
-          photo={allPhotosSorted[selectedPhotoIndex]}
-          onClose={() => setSelectedPhotoIndex(-1)}
-          onNext={() => selectedPhotoIndex < nodes.length - 1 && setSelectedPhotoIndex(selectedPhotoIndex + 1)}
-          onPrev={() => selectedPhotoIndex > 0 && setSelectedPhotoIndex(selectedPhotoIndex - 1)}
-          hasNext={selectedPhotoIndex < nodes.length - 1}
-          hasPrev={selectedPhotoIndex > 0}
+          photo={nodes[selectedNodeIndex].originalData as Photo}
+          onClose={() => setSelectedNodeIndex(-1)}
+          onNext={() => selectedNodeIndex < nodes.length - 1 && setSelectedNodeIndex(selectedNodeIndex + 1)}
+          onPrev={() => selectedNodeIndex > 0 && setSelectedNodeIndex(selectedNodeIndex - 1)}
+          hasNext={selectedNodeIndex < nodes.length - 1}
+          hasPrev={selectedNodeIndex > 0}
         />
       )}
+
+      {/* 响应式样式注入 */}
+      <style>{`
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.5); }
+        }
+        .shooting-star {
+          position: absolute;
+          width: 2px;
+          height: 2px;
+          background: #fff;
+          border-radius: 50%;
+          box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(255,255,255,1);
+          animation: animate-shooting-star 3s linear infinite;
+          opacity: 0;
+        }
+        .shooting-star::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 300px;
+          height: 1px;
+          background: linear-gradient(90deg, #fff, transparent);
+        }
+        @keyframes animate-shooting-star {
+          0% { transform: rotate(315deg) translateX(0); opacity: 1; }
+          70% { opacity: 1; }
+          100% { transform: rotate(315deg) translateX(-1000px); opacity: 0; }
+        }
+        .animate-twinkle { animation: twinkle linear infinite; }
+      `}</style>
     </div>
   );
 };

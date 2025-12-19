@@ -63,8 +63,8 @@
 
 /* Constellation Specific Animations */
 @keyframes constellation-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
+  0%, 100% { transform: scale(1); opacity: 0.6; filter: brightness(1); }
+  50% { transform: scale(1.4); opacity: 1; filter: brightness(1.5); }
 }
 
 .animate-star-glow {
@@ -73,4 +73,9 @@
 
 .perspective-2000 {
   perspective: 2000px;
+}
+
+/* Custom Utilities for Space */
+.bg-space-nebula {
+  background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
 }
