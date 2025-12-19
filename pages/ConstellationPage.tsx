@@ -77,7 +77,9 @@ export const ConstellationPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const groups: Record<string, ConstellationNode[]> = {};
+    // FIX: Using any[] for the temporary grouping object because elements from allMemories 
+    // do not yet have the x, y, size, and glowColor properties required by ConstellationNode.
+    const groups: Record<string, any[]> = {};
     allMemories.forEach(node => {
       if (!groups[node.year]) groups[node.year] = [];
       groups[node.year].push(node);

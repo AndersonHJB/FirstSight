@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library, Mail, ChevronDown, MessageCircle, Sparkles, Orbit } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library, Mail, ChevronDown, MessageCircle, Sparkles, Orbit, ScrollText } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -25,6 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
       items: [
         { label: '见字如面', path: '/letters', icon: Mail },
         { label: '即刻短文', path: '/essay', icon: Feather },
+        { label: '浮生六记', path: '/floating-life', icon: ScrollText },
         { label: '时光留言', path: '/message-board', icon: MessageCircle },
       ],
     },

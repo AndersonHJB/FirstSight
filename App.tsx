@@ -14,6 +14,7 @@ import { LetterPage } from './pages/LetterPage';
 import { MessageBoard } from './pages/MessageBoard';
 import { FragmentsPage } from './pages/FragmentsPage';
 import { ConstellationPage } from './pages/ConstellationPage';
+import { FloatingLife } from './pages/FloatingLife';
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, MULTI_CHILD_TIMELINES } from './data';
 
@@ -83,6 +84,8 @@ const App: React.FC = () => {
         return <FragmentsPage />;
       case '/constellation':
         return <ConstellationPage />;
+      case '/floating-life':
+        return <FloatingLife />;
       case '/family':
         return (
           <Gallery 
@@ -123,7 +126,8 @@ const App: React.FC = () => {
        currentPath !== '/travel' && 
        currentPath !== '/baby-album' && 
        currentPath !== '/fragments' && 
-       currentPath !== '/constellation' && (
+       currentPath !== '/constellation' && 
+       currentPath !== '/floating-life' && (
         <footer className="bg-white border-t border-stone-100 py-12 text-center">
           <p className="font-serif text-stone-400 text-sm">© 2025 时光 · 家书 Family Album. All memories preserved.</p>
         </footer>
