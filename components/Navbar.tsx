@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library, Mail, ChevronDown, MessageCircle } from 'lucide-react';
+import { Menu, X, Home, Image, Heart, Users, Footprints, Feather, Search, Map, Library, Mail, ChevronDown, MessageCircle, Sparkles } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -128,6 +128,17 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
                   </div>
                 );
               })}
+
+              {/* Surprise Page: Fragments */}
+              <button
+                onClick={() => handleNav('/fragments')}
+                className={`flex items-center gap-1.5 px-3 py-2 font-serif text-base transition-all duration-300 rounded-sm
+                  ${activeTab === '/fragments' ? 'text-ink bg-stone-100/50' : 'text-stone-400 hover:text-accent-gold hover:bg-stone-50/50'}
+                `}
+              >
+                <Sparkles size={16} strokeWidth={1.5} className={activeTab === '/fragments' ? 'text-accent-gold' : ''} />
+                <span>时光碎片</span>
+              </button>
               
               {/* Action Buttons */}
               <div className="h-4 w-px bg-stone-200 mx-2" />
@@ -197,6 +208,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
                </div>
             </div>
           ))}
+
+          <button
+            onClick={() => handleNav('/fragments')}
+            className={`w-full flex items-center gap-4 py-6 border-b border-stone-100 font-serif text-2xl ${activeTab === '/fragments' ? 'text-ink' : 'text-stone-400'}`}
+          >
+            <Sparkles size={24} strokeWidth={1.5} />
+            <span>时光碎片</span>
+          </button>
           
           <div className="mt-auto py-10 text-center">
              <p className="font-serif text-stone-300 text-xs tracking-widest uppercase">The Timeless Family Album</p>
