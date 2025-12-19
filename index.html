@@ -69,22 +69,80 @@
           -ms-overflow-style: none;
           scrollbar-width: none;
       }
-      /* Waline Custom Styling for Message Board */
+      
+      /* ==========================================
+         Waline 深度定制：时光家书主题
+         ========================================== */
       :root {
-        --waline-theme-color: #8c7b75;
-        --waline-active-color: #3a3a3a;
-        --waline-bg-color: transparent;
-        --waline-bg-color-light: #fdfbf7;
-        --waline-border-color: #e7e5e4;
+        --waline-theme-color: #8c7b75 !important;
+        --waline-active-color: #3a3a3a !important;
+        --waline-bg-color: transparent !important;
+        --waline-bg-color-light: #fdfbf7 !important;
+        --waline-border-color: #e7e5e4 !important;
+        --waline-text-color: #3a3a3a !important;
+        --waline-info-bg-color: #f0efe9 !important;
+        --waline-border: 1px solid var(--waline-border-color);
       }
+
+      /* 整体容器 */
+      .wl-content { font-family: "Noto Serif SC", serif !important; }
       .wl-panel {
-        border-radius: 2px !important;
+        border-radius: 4px !important;
         border: 1px solid #e7e5e4 !important;
         background: #fff !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
       }
+      
+      /* 输入框区域 */
       .wl-header { border-bottom: 1px dashed #e7e5e4 !important; }
-      .wl-input { font-family: "Noto Serif SC", serif !important; }
+      .wl-input { 
+        font-family: "Noto Serif SC", serif !important; 
+        background: linear-gradient(to bottom, transparent 31px, #f0efe9 31px) !important;
+        background-size: 100% 32px !important;
+        line-height: 32px !important;
+      }
+      
+      /* 按钮定制 */
+      .wl-btn {
+        border-radius: 2px !important;
+        font-family: "Noto Serif SC", serif !important;
+        font-weight: 400 !important;
+        letter-spacing: 0.1em !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+      }
+      .wl-btn.primary {
+        background: #3a3a3a !important;
+        border-color: #3a3a3a !important;
+      }
+      .wl-btn.primary:hover {
+        background: #8c7b75 !important;
+        border-color: #8c7b75 !important;
+      }
+
+      /* 评论列表项 */
+      .wl-card {
+        border-bottom: 1px dashed #e7e5e4 !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+      }
+      .wl-nick { 
+        font-family: "Zhi Mang Xing", cursive !important; 
+        font-size: 1.4rem !important;
+        color: #8c7b75 !important;
+      }
+      .wl-time { font-family: "Noto Sans SC", sans-serif !important; opacity: 0.6; }
+      
+      /* 徽章优化 */
+      .wl-badge {
+        background: #f0efe9 !important;
+        color: #8c7b75 !important;
+        border-radius: 2px !important;
+        font-size: 0.6rem !important;
+      }
+
+      /* 隐藏版权 */
+      .wl-power { display: none !important; }
     </style>
   <script type="importmap">
 {

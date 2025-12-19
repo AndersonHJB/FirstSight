@@ -26,6 +26,10 @@ export const MessageBoard: React.FC = () => {
         noCopyright: true,
         dark: 'false',
         lang: 'zh-CN',
+        // Use 'locale' object to specify the placeholder as per WalineInitOptions specification
+        locale: {
+          placeholder: '在此提笔，书写那些关于爱与时光的碎碎念...',
+        },
         emoji: [
           '//unpkg.com/@waline/emojis@1.2.0/weibo',
           '//unpkg.com/@waline/emojis@1.2.0/alus',
@@ -70,11 +74,11 @@ export const MessageBoard: React.FC = () => {
           
           <div className="mb-10 flex items-center gap-3 text-stone-400 font-serif text-sm border-b border-stone-50 pb-6">
              <PenTool size={16} />
-             <span>期待在这里读到关于爱与成长的碎碎念...</span>
+             <span>这里记录着每一份被温柔以待的回忆...</span>
           </div>
 
           {/* Waline Entry Point */}
-          <div ref={containerRef} className="font-sans" />
+          <div ref={containerRef} className="font-sans waline-custom-container" />
         </div>
 
         {/* Bottom Quote */}
