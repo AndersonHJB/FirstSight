@@ -60,3 +60,17 @@
 .animate-envelope-finish {
   animation: envelope-sink 0.4s ease-in 0.8s forwards;
 }
+
+/* Constellation Specific Animations */
+@keyframes constellation-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+.animate-star-glow {
+  animation: constellation-pulse 4s ease-in-out infinite;
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
