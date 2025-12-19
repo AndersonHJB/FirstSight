@@ -7,3 +7,4 @@ export * from './wedding';
 export * from './essay';
 export * from './travel';
 export * from './letters';
+export * from './floatingLife';
