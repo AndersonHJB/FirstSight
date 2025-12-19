@@ -31,7 +31,6 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      external: ['@waline/client'], // 告诉 Rollup 不要尝试打包这个库
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
@@ -43,6 +42,9 @@ export default defineConfig({
             }
             if (id.includes('react-markdown')) {
               return 'markdown';
+            }
+            if (id.includes('@waline')) {
+              return 'waline';
             }
             return 'vendor';
           }
