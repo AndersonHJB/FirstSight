@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 export default defineConfig({
-  base: './',
+  // 部署在子路径 /FirstSight/ 下，必须配置 base 确保资源路径正确
+  base: '/FirstSight/',
   plugins: [
     react(),
     ViteImageOptimizer({

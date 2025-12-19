@@ -4,11 +4,11 @@ import { AlbumType, Photo } from '../types';
 const FAMILY_DATA = [
   {
     id: 'f-local-sample',
-    url: ['/photos/family/IMG_001.jpg'], // 这是一个 public 路径示例
+    url: ['photos/family/IMG_001.jpg'], // 移除前导斜杠，使其相对于 base 路径加载
     title: '本地照片示例',
     date: '2024.03.20',
     location: '家',
-    description: '要使用自己的照片，请将图片放入项目根目录下的 public 文件夹中，然后在这里使用以 / 开头的路径即可。',
+    description: '要使用自己的照片，请将图片放入项目根目录下的 public 文件夹中。在代码中配置路径时，移除前导斜杠（如使用 photos/ 而不是 /photos/），可以确保在子路径部署时也能正确访问。',
     tags: ['本地', '说明'],
   },
   {

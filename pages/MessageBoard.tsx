@@ -8,18 +8,23 @@ export const MessageBoard: React.FC = () => {
   const walineInstanceRef = useRef<any>(null);
 
   useEffect(() => {
+    // 获取 Vite 配置的 base 路径 (例如 /FirstSight/)
+    const baseUrl = import.meta.env.BASE_URL;
+    // 确保 baseUrl 格式正确，以斜杠结尾
+    const safeBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
     if (containerRef.current) {
       walineInstanceRef.current = init({
         el: containerRef.current,
         serverURL: 'https://comment.bornforthis.cn/',
         path: '/message-board',
         reaction: [
-          '/Waline/tieba/tieba_agree.png',
-          '/Waline/tieba/tieba_sunglasses.png',
-          '/Waline/tieba/tieba_pick_nose.png',
-          '/Waline/tieba/tieba_awkward.png',
-          '/Waline/tieba/1f613.png',
-          '/Waline/tieba/1f60f.png',
+          `${safeBase}Waline/tieba/tieba_agree.png`,
+          `${safeBase}Waline/tieba/tieba_sunglasses.png`,
+          `${safeBase}Waline/tieba/tieba_pick_nose.png`,
+          `${safeBase}Waline/tieba/tieba_awkward.png`,
+          `${safeBase}Waline/tieba/1f613.png`,
+          `${safeBase}Waline/tieba/1f60f.png`,
         ],
         comment: true,
         pageview: true,
