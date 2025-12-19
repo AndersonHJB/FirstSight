@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Photo } from '../types';
-import { X, ChevronLeft, ChevronRight, MapPin, Aperture, Clock, Camera, PlayCircle } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Aperture, Clock, Camera, PlayCircle, Share2 } from 'lucide-react';
+import { ShareModal } from './ShareModal';
 
 interface ImmersiveLightboxProps {
   photo: Photo;
@@ -22,17 +23,21 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
   hasPrev
 }) => {
   const [showControls, setShowControls] = useState(true);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (isShareOpen) setIsShareOpen(false);
+        else onClose();
+      }
       if (e.key === 'ArrowRight' && hasNext) onNext();
       if (e.key === 'ArrowLeft' && hasPrev) onPrev();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, onNext, onPrev, hasNext, hasPrev]);
+  }, [onClose, onNext, onPrev, hasNext, hasPrev, isShareOpen]);
 
   // Lock body scroll
   useEffect(() => {
@@ -45,24 +50,38 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
   const content = (
     <div 
       className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-sm flex items-center justify-center animate-fade-in select-none group/lightbox"
-      onClick={onClose} // Close on background click
+      onClick={onClose} 
     >
       
-      {/* Background Image Blur Effect (Optional, subtle atmosphere) */}
+      {/* Background Image Blur Effect */}
       <div 
         className="absolute inset-0 opacity-20 pointer-events-none bg-cover bg-center blur-3xl"
         style={{ backgroundImage: `url(${photo.poster || photo.url[0]})` }}
       />
 
-      {/* Close Button */}
-      <button 
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className={`absolute top-6 right-6 p-3 text-white/70 hover:text-white transition-all z-[10000] cursor-pointer ${showControls ? 'opacity-100' : 'opacity-0'}`}
-      >
-        <X size={32} strokeWidth={1} />
-      </button>
+      {/* Top Controls */}
+      <div className={`absolute top-6 right-6 flex items-center gap-4 z-[10000] transition-all ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+         {/* Share Button (Only for images) */}
+         {!isVideo && (
+           <button 
+             onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }}
+             className="p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all cursor-pointer"
+             title="分享明信片"
+           >
+             <Share2 size={24} strokeWidth={1.5} />
+           </button>
+         )}
+         
+         <button 
+           onClick={(e) => { e.stopPropagation(); onClose(); }}
+           className="p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all cursor-pointer"
+           title="关闭"
+         >
+           <X size={32} strokeWidth={1} />
+         </button>
+      </div>
 
-      {/* Navigation - Large click areas */}
+      {/* Navigation */}
       <div className="absolute inset-0 flex items-center justify-between pointer-events-none z-[9999]">
          {hasPrev ? (
            <button 
@@ -92,14 +111,14 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
              controls
              autoPlay
              className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in"
-             onClick={(e) => { e.stopPropagation(); setShowControls(!showControls); }} // Toggle controls instead of closing
+             onClick={(e) => { e.stopPropagation(); setShowControls(!showControls); }}
            />
         ) : (
            <img 
              src={photo.url[0]} 
              alt={photo.title} 
              className="max-h-full max-w-full object-contain shadow-2xl animate-scale-in transition-transform duration-500"
-             onClick={(e) => { e.stopPropagation(); setShowControls(!showControls); }} // Toggle controls instead of closing
+             onClick={(e) => { e.stopPropagation(); setShowControls(!showControls); }}
            />
         )}
       </div>
@@ -110,10 +129,9 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
       >
         <div 
           className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6 pointer-events-auto"
-          onClick={(e) => e.stopPropagation()} // Prevent close when clicking info area
+          onClick={(e) => e.stopPropagation()}
         >
           
-          {/* Left: Title & Desc */}
           <div className="flex-1 text-white">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">{photo.title}</h2>
             <div className="flex items-center gap-4 mb-2">
@@ -125,8 +143,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
               {photo.description}
             </p>
             
-            {/* Exif / Metadata Bar */}
-            <div className="flex flex-wrap items-center gap-4 md:gap-8 text-xs md:text-sm text-white/60 font-mono tracking-wide">
+            <div className="flex wrap items-center gap-4 md:gap-8 text-xs md:text-sm text-white/60 font-mono tracking-wide">
               {photo.exif?.device && (
                 <div className="flex items-center gap-2">
                   <Camera size={16} />
@@ -150,16 +167,20 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
             </div>
           </div>
           
-          {/* Right: Copyright/Watermark */}
           <div className="text-white/40 flex items-center gap-2 font-serif italic text-sm">
-            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
-               黄
-            </div>
+            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">黄</div>
             <span>Bornforthis</span>
           </div>
-
         </div>
       </div>
+
+      {/* Share Modal Integration */}
+      {isShareOpen && (
+        <ShareModal 
+          photo={photo} 
+          onClose={() => setIsShareOpen(false)} 
+        />
+      )}
 
     </div>
   );

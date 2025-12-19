@@ -1,11 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Photo } from '../types';
-import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera, Play } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera, Play, Share2 } from 'lucide-react';
+import { ShareModal } from './ShareModal';
 
 interface LightboxProps {
   photo: Photo;
-  // currentUrlIndex indicates which image in the photo.url array to show
   currentUrlIndex: number;
   onClose: () => void;
   onNext: () => void;
@@ -13,16 +13,20 @@ interface LightboxProps {
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onClose, onNext, onPrev }) => {
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (isShareOpen) setIsShareOpen(false);
+        else onClose();
+      }
       if (e.key === 'ArrowRight') onNext();
       if (e.key === 'ArrowLeft') onPrev();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, onNext, onPrev]);
+  }, [onClose, onNext, onPrev, isShareOpen]);
 
   const isVideo = photo.mediaType === 'video';
 
@@ -33,12 +37,23 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     >
       
       {/* Controls */}
-      <button 
-        onClick={(e) => { e.stopPropagation(); onClose(); }} 
-        className="absolute top-6 right-6 p-2 rounded-full hover:bg-stone-200/50 transition-colors z-20 text-ink"
-      >
-        <X size={28} strokeWidth={1.5} />
-      </button>
+      <div className="absolute top-6 right-6 flex items-center gap-4 z-20">
+         {!isVideo && (
+           <button 
+             onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
+             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors"
+             title="分享明信片"
+           >
+             <Share2 size={24} strokeWidth={1.5} />
+           </button>
+         )}
+         <button 
+           onClick={(e) => { e.stopPropagation(); onClose(); }} 
+           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink"
+         >
+           <X size={28} strokeWidth={1.5} />
+         </button>
+      </div>
 
       <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
         <button 
@@ -74,7 +89,6 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
              />
            ) : (
              <img 
-               // Key changes when URL changes to trigger animation
                key={`${photo.id}-${currentUrlIndex}`} 
                src={photo.url[currentUrlIndex]} 
                alt={photo.title} 
@@ -82,7 +96,6 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
              />
            )}
            
-           {/* Multi-image counter (only for images usually, but keeps logic) */}
            {!isVideo && photo.url.length > 1 && (
              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm font-mono tracking-widest">
                 {currentUrlIndex + 1} / {photo.url.length}
@@ -93,7 +106,6 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
         {/* Story Side */}
         <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-l border-stone-100">
            
-           {/* Date & Location Stamp */}
            <div className="flex flex-col gap-1 mb-8 border-b border-stone-200 pb-6">
               <div className="flex items-center gap-3 text-accent-brown font-serif text-sm">
                 <span className="flex items-center gap-1.5"><Calendar size={14}/> {photo.date}</span>
@@ -102,14 +114,12 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
               <h2 className="font-hand text-4xl text-ink mt-2">{photo.title}</h2>
            </div>
 
-           {/* The Description (Journal Entry) */}
            <div className="flex-1">
              <p className="font-serif text-lg text-stone-600 leading-8 whitespace-pre-line first-letter:text-4xl first-letter:font-hand first-letter:text-accent-brown first-letter:mr-1">
                {photo.description}
              </p>
            </div>
 
-           {/* Metadata / Tags */}
            <div className="mt-8 pt-6 border-t border-stone-100 flex flex-wrap gap-2">
               {photo.tags.map(tag => (
                 <span key={tag} className="text-xs font-sans tracking-wide text-stone-400 uppercase">
@@ -122,8 +132,15 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
               {isVideo ? <Play size={24} className="text-stone-400" /> : <Camera size={24} className="text-stone-400" />}
            </div>
         </div>
-
       </div>
+
+      {/* Share Modal Integration */}
+      {isShareOpen && (
+        <ShareModal 
+          photo={photo} 
+          onClose={() => setIsShareOpen(false)} 
+        />
+      )}
     </div>
   );
 };
