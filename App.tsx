@@ -11,6 +11,7 @@ import { EssayPage } from './pages/EssayPage';
 import { TravelPage } from './pages/TravelPage';
 import { BabyAlbum } from './pages/BabyAlbum';
 import { LetterPage } from './pages/LetterPage';
+import { MessageBoard } from './pages/MessageBoard';
 import { AlbumType } from './types';
 import { FAMILY_PHOTOS, MULTI_CHILD_TIMELINES } from './data';
 
@@ -66,6 +67,8 @@ const App: React.FC = () => {
         return <EssayPage initialEssayId={queryParams.id} />; 
       case '/letters':
         return <LetterPage initialLetterId={queryParams.id} />;
+      case '/message-board':
+        return <MessageBoard />;
       case '/gallery':
         return <ArtisticGallery initialPhotoId={queryParams.id} />; 
       case '/travel':

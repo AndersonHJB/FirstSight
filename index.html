@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -8,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="https://bornforthis.cn/favicon.ico">
+    <!-- Waline Style -->
+    <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
     <!-- Added Zhi Mang Xing for handwriting feel -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
     <script>
@@ -58,7 +61,6 @@
       body {
         background-color: #f9f7f2;
         color: #3a3a3a;
-        /* Subtle paper texture overlay could be added here */
       }
       .scrollbar-hide::-webkit-scrollbar {
           display: none;
@@ -67,6 +69,22 @@
           -ms-overflow-style: none;
           scrollbar-width: none;
       }
+      /* Waline Custom Styling for Message Board */
+      :root {
+        --waline-theme-color: #8c7b75;
+        --waline-active-color: #3a3a3a;
+        --waline-bg-color: transparent;
+        --waline-bg-color-light: #fdfbf7;
+        --waline-border-color: #e7e5e4;
+      }
+      .wl-panel {
+        border-radius: 2px !important;
+        border: 1px solid #e7e5e4 !important;
+        background: #fff !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
+      }
+      .wl-header { border-bottom: 1px dashed #e7e5e4 !important; }
+      .wl-input { font-family: "Noto Serif SC", serif !important; }
     </style>
   <script type="importmap">
 {
@@ -80,7 +98,8 @@
     "react-dom": "https://esm.sh/react-dom@^19.2.3",
     "vite-plugin-imagemin": "https://esm.sh/vite-plugin-imagemin@^0.6.1",
     "vite-plugin-image-optimizer": "https://esm.sh/vite-plugin-image-optimizer@^2.0.3",
-    "react-markdown": "https://esm.sh/react-markdown@9?bundle"
+    "react-markdown": "https://esm.sh/react-markdown@9?bundle",
+    "@waline/client": "https://unpkg.com/@waline/client@v3/dist/waline.js"
   }
 }
 </script>
