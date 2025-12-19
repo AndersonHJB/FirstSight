@@ -1,9 +1,9 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FAMILY_PHOTOS, BABY_PHOTOS, GALLERY_PHOTOS, TRAVEL_TRIPS } from '../data';
 import { Photo } from '../types';
 import { ImmersiveLightbox } from '../components/ImmersiveLightbox';
-import { Dices, Sparkles, RefreshCw, ZoomIn, Info } from 'lucide-react';
+import { RefreshCw, ZoomIn, Info, Grab } from 'lucide-react';
 
 interface Fragment extends Photo {
   x: number;
@@ -16,8 +16,12 @@ export const FragmentsPage: React.FC = () => {
   const [fragments, setFragments] = useState<Fragment[]>([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [maxZIndex, setMaxZIndex] = useState(20);
+  
+  // Dragging State
+  const [dragInfo, setDragInfo] = useState<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Collect all photos from all modules
   const allPhotos = useMemo(() => {
     const travelPhotos = TRAVEL_TRIPS.flatMap(t => t.photos);
     return [...FAMILY_PHOTOS, ...BABY_PHOTOS, ...GALLERY_PHOTOS, ...travelPhotos];
@@ -25,27 +29,78 @@ export const FragmentsPage: React.FC = () => {
 
   const generateFragments = () => {
     setIsRefreshing(true);
-    // Pick 12-15 random photos
     const shuffled = [...allPhotos].sort(() => 0.5 - Math.random());
     const picked = shuffled.slice(0, window.innerWidth < 768 ? 8 : 15);
 
     const newFragments = picked.map((photo, index) => ({
       ...photo,
-      // Random position within safe bounds (percentage)
-      x: 10 + Math.random() * 70,
-      y: 15 + Math.random() * 65,
-      // Random rotation between -15 and 15 degrees
+      x: 15 + Math.random() * 70,
+      y: 20 + Math.random() * 60,
       rotate: (Math.random() - 0.5) * 30,
-      zIndex: index
+      zIndex: index + 1
     }));
 
     setFragments(newFragments);
+    setMaxZIndex(newFragments.length + 1);
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
   useEffect(() => {
     generateFragments();
   }, []);
+
+  // --- Dragging Logic ---
+  const handleMouseDown = (e: React.MouseEvent, id: string) => {
+    // Only allow left click
+    if (e.button !== 0) return;
+    
+    const target = fragments.find(f => f.id === id);
+    if (!target) return;
+
+    // Bring to front
+    const newMaxZ = maxZIndex + 1;
+    setMaxZIndex(newMaxZ);
+    setFragments(prev => prev.map(f => f.id === id ? { ...f, zIndex: newMaxZ } : f));
+
+    setDragInfo({
+      id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: target.x,
+      origY: target.y
+    });
+
+    e.preventDefault(); // Prevent text selection
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragInfo || !containerRef.current) return;
+
+      const dx = ((e.clientX - dragInfo.startX) / containerRef.current.clientWidth) * 100;
+      const dy = ((e.clientY - dragInfo.startY) / containerRef.current.clientHeight) * 100;
+
+      setFragments(prev => prev.map(f => 
+        f.id === dragInfo.id 
+          ? { ...f, x: dragInfo.origX + dx, y: dragInfo.origY + dy } 
+          : f
+      ));
+    };
+
+    const handleMouseUp = () => {
+      setDragInfo(null);
+    };
+
+    if (dragInfo) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragInfo]);
 
   const handleNext = () => {
     if (selectedPhotoIndex < fragments.length - 1) {
@@ -67,7 +122,7 @@ export const FragmentsPage: React.FC = () => {
     "慢慢长大，也是一种浪漫。"
   ];
   
-  const randomQuote = useMemo(() => quotes[Math.floor(Math.random() * quotes.length)], [fragments]);
+  const randomQuote = useMemo(() => quotes[Math.floor(Math.random() * quotes.length)], [isRefreshing]);
 
   return (
     <div className="min-h-screen bg-paper overflow-hidden relative pt-20">
@@ -76,44 +131,56 @@ export const FragmentsPage: React.FC = () => {
            style={{ backgroundImage: 'radial-gradient(#8c7b75 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
       {/* Header Info */}
-      <div className="absolute top-28 left-0 right-0 z-10 px-6 text-center pointer-events-none">
-         <h1 className="font-hand text-5xl text-ink/80 mb-2">时光碎片</h1>
-         <p className="font-serif text-sm text-stone-400 italic tracking-widest uppercase">Random Echoes of Memories</p>
+      <div className="absolute top-28 left-0 right-0 z-0 px-6 text-center pointer-events-none">
+         <h1 className="font-hand text-5xl text-ink/60 mb-2">时光碎片</h1>
+         <p className="font-serif text-[10px] text-stone-300 italic tracking-[0.3em] uppercase">Drag to rearrange and find memories</p>
       </div>
 
       {/* The Canvas */}
-      <div className="relative w-full h-[85vh]">
-        {fragments.map((frag, idx) => (
-          <div 
-            key={`${frag.id}-${idx}`}
-            className={`absolute transition-all duration-1000 ease-out group cursor-pointer
-              ${isRefreshing ? 'opacity-0 scale-50' : 'opacity-100 scale-100'}`}
-            style={{ 
-              left: `${frag.x}%`, 
-              top: `${frag.y}%`, 
-              transform: `translate(-50%, -50%) rotate(${frag.rotate}deg)`,
-              zIndex: frag.zIndex
-            }}
-            onClick={() => setSelectedPhotoIndex(idx)}
-          >
-            {/* Polaroid Frame */}
-            <div className="bg-white p-2 pb-6 shadow-polaroid group-hover:shadow-polaroid-hover group-hover:-translate-y-4 group-hover:rotate-0 transition-all duration-500 w-32 md:w-48 lg:w-56 border border-stone-100/50">
-               <div className="aspect-square overflow-hidden bg-stone-50 relative">
-                  <img src={frag.url[0]} alt="" className="w-full h-full object-cover filter saturate-[0.8] contrast-[1.1]" />
-                  <div className="absolute inset-0 bg-orange-900/5 mix-blend-overlay" />
-                  
-                  {/* Quick Look Icon */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                     <ZoomIn size={24} className="text-white" />
-                  </div>
-               </div>
-               <div className="mt-3 px-1">
-                  <p className="font-hand text-xs md:text-sm text-stone-500 truncate">{frag.title}</p>
-                  <p className="text-[8px] font-sans text-stone-300 uppercase tracking-tighter mt-0.5">{frag.date}</p>
-               </div>
+      <div ref={containerRef} className="relative w-full h-[85vh] touch-none">
+        {fragments.map((frag, idx) => {
+          const isDragging = dragInfo?.id === frag.id;
+          return (
+            <div 
+              key={`${frag.id}-${idx}`}
+              className={`absolute group 
+                ${isRefreshing ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100'} 
+                ${isDragging ? '' : 'transition-all duration-1000 ease-out'}`}
+              style={{ 
+                left: `${frag.x}%`, 
+                top: `${frag.y}%`, 
+                transform: `translate(-50%, -50%) rotate(${frag.rotate}deg)`,
+                zIndex: frag.zIndex
+              }}
+              onMouseDown={(e) => handleMouseDown(e, frag.id)}
+            >
+              {/* Polaroid Frame */}
+              <div className={`bg-white p-2 pb-6 shadow-polaroid border border-stone-100/50 w-32 md:w-48 lg:w-56 select-none
+                ${isDragging ? 'shadow-2xl scale-[1.02] cursor-grabbing' : 'cursor-grab group-hover:shadow-polaroid-hover group-hover:-translate-y-2 transition-all duration-500'}`}>
+                 <div className="aspect-square overflow-hidden bg-stone-50 relative pointer-events-none">
+                    <img src={frag.url[0]} alt="" className="w-full h-full object-cover filter saturate-[0.8] contrast-[1.1]" draggable={false} />
+                    <div className="absolute inset-0 bg-orange-950/5 mix-blend-overlay" />
+                 </div>
+                 
+                 <div className="mt-3 px-1 flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-hand text-xs md:text-sm text-stone-500 truncate">{frag.title}</p>
+                      <p className="text-[8px] font-sans text-stone-300 uppercase tracking-tighter mt-0.5">{frag.date}</p>
+                    </div>
+                    {/* View Button (Clickable even when draggable) */}
+                    <button 
+                      onMouseDown={(e) => e.stopPropagation()} 
+                      onClick={() => setSelectedPhotoIndex(idx)}
+                      className="p-1.5 rounded-full bg-stone-50 text-stone-300 hover:text-accent-brown hover:bg-stone-100 transition-colors"
+                      title="放大查看"
+                    >
+                      <ZoomIn size={14} />
+                    </button>
+                 </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Floating Controls */}
@@ -124,19 +191,26 @@ export const FragmentsPage: React.FC = () => {
            className="group flex items-center gap-3 px-8 py-3 bg-ink text-white rounded-full shadow-2xl hover:bg-accent-brown transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
          >
            <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'} />
-           <span className="font-serif text-sm tracking-widest">打乱回忆</span>
+           <span className="font-serif text-sm tracking-widest">打乱记忆</span>
          </button>
       </div>
 
       {/* Background Quote */}
-      <div className="fixed bottom-32 left-0 right-0 text-center z-0 opacity-30 select-none px-6">
-         <p className="font-hand text-2xl md:text-3xl text-stone-400">“ {randomQuote} ”</p>
+      <div className="fixed bottom-32 left-0 right-0 text-center z-[-1] opacity-20 select-none px-6 pointer-events-none">
+         <p className="font-hand text-2xl md:text-3xl text-stone-400 italic">“ {randomQuote} ”</p>
       </div>
 
       {/* Hint for Users */}
-      <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-2 text-stone-300">
-         <Info size={14} />
-         <span className="text-[10px] font-serif uppercase tracking-widest">每一张碎片，都是一个曾经。</span>
+      <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-3 text-stone-300/60 pointer-events-none">
+         <div className="flex items-center gap-1.5">
+           <Grab size={12} />
+           <span className="text-[9px] font-serif uppercase tracking-widest">鼠标拖拽翻找</span>
+         </div>
+         <div className="w-1 h-1 rounded-full bg-stone-200" />
+         <div className="flex items-center gap-1.5">
+           <Info size={12} />
+           <span className="text-[9px] font-serif uppercase tracking-widest">每一张碎片，都是一个曾经</span>
+         </div>
       </div>
 
       {/* Lightbox Integration */}
