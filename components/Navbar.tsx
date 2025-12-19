@@ -47,6 +47,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
         { label: '成长记录', path: '/baby', icon: Footprints },
       ],
     },
+    {
+      label: '发现惊喜',
+      icon: Sparkles,
+      items: [
+        { label: '时光碎片', path: '/fragments', icon: Sparkles },
+        { label: '时光星图', path: '/constellation', icon: Orbit },
+      ],
+    },
   ];
 
   const handleNav = (path: string) => {
@@ -142,32 +150,6 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
                 );
               })}
 
-              {/* Surprise Page 1: Fragments */}
-              <button
-                onClick={() => handleNav('/fragments')}
-                className={`flex items-center gap-1.5 px-3 py-2 font-serif text-base transition-all duration-300 rounded-sm
-                  ${activeTab === '/fragments' 
-                    ? (isConstellationPage ? 'text-white' : 'text-ink bg-stone-100/50') 
-                    : (isConstellationPage ? 'text-white/40 hover:text-accent-gold' : 'text-stone-400 hover:text-accent-gold hover:bg-stone-50/50')}
-                `}
-              >
-                <Sparkles size={16} strokeWidth={1.5} className={activeTab === '/fragments' ? 'text-accent-gold' : ''} />
-                <span>时光碎片</span>
-              </button>
-
-              {/* Surprise Page 2: Constellation (NEW) */}
-              <button
-                onClick={() => handleNav('/constellation')}
-                className={`flex items-center gap-1.5 px-3 py-2 font-serif text-base transition-all duration-300 rounded-sm
-                  ${activeTab === '/constellation' 
-                    ? 'text-blue-400 bg-blue-900/20' 
-                    : (isConstellationPage ? 'text-white/40 hover:text-blue-400' : 'text-stone-400 hover:text-blue-600 hover:bg-blue-50/50')}
-                `}
-              >
-                <Orbit size={16} strokeWidth={1.5} className={activeTab === '/constellation' ? 'animate-pulse' : ''} />
-                <span>时光星图</span>
-              </button>
-              
               <div className={`h-4 w-px mx-2 ${isConstellationPage ? 'bg-white/10' : 'bg-stone-200'}`} />
               <button 
                 onClick={onSearchClick}
@@ -211,14 +193,6 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate, onSearchC
                </div>
             </div>
           ))}
-
-          <button onClick={() => handleNav('/fragments')} className={`w-full flex items-center gap-4 py-6 border-b font-serif text-2xl ${isConstellationPage ? 'border-white/5' : 'border-stone-100'}`}>
-            <Sparkles size={24} /> <span>时光碎片</span>
-          </button>
-
-          <button onClick={() => handleNav('/constellation')} className={`w-full flex items-center gap-4 py-6 border-b font-serif text-2xl ${isConstellationPage ? 'border-white/5 text-blue-400' : 'border-stone-100'}`}>
-            <Orbit size={24} /> <span>时光星图</span>
-          </button>
           
           <div className="mt-auto py-10 text-center opacity-30">
              <p className="font-serif text-xs tracking-widest uppercase">The Timeless Family Album</p>
