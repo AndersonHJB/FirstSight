@@ -49,11 +49,8 @@ export const FragmentsPage: React.FC = () => {
     generateFragments();
   }, []);
 
-  // --- Dragging Logic ---
-  const handleMouseDown = (e: React.MouseEvent, id: string) => {
-    // Only allow left click
-    if (e.button !== 0) return;
-    
+  // --- Unified Dragging Initiation ---
+  const startDragging = (id: string, clientX: number, clientY: number) => {
     const target = fragments.find(f => f.id === id);
     if (!target) return;
 
@@ -64,41 +61,65 @@ export const FragmentsPage: React.FC = () => {
 
     setDragInfo({
       id,
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: clientX,
+      startY: clientY,
       origX: target.x,
       origY: target.y
     });
+  };
 
-    e.preventDefault(); // Prevent text selection
+  const handleMouseDown = (e: React.MouseEvent, id: string) => {
+    if (e.button !== 0) return;
+    startDragging(id, e.clientX, e.clientY);
+    e.preventDefault();
+  };
+
+  const handleTouchStart = (e: React.TouchEvent, id: string) => {
+    const touch = e.touches[0];
+    startDragging(id, touch.clientX, touch.clientY);
+    // Note: preventDefault here might block clicking, but we handle that via the Zoom button
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number, clientY: number, e?: MouseEvent | TouchEvent) => {
       if (!dragInfo || !containerRef.current) return;
 
-      const dx = ((e.clientX - dragInfo.startX) / containerRef.current.clientWidth) * 100;
-      const dy = ((e.clientY - dragInfo.startY) / containerRef.current.clientHeight) * 100;
+      const dx = ((clientX - dragInfo.startX) / containerRef.current.clientWidth) * 100;
+      const dy = ((clientY - dragInfo.startY) / containerRef.current.clientHeight) * 100;
 
       setFragments(prev => prev.map(f => 
         f.id === dragInfo.id 
           ? { ...f, x: dragInfo.origX + dx, y: dragInfo.origY + dy } 
           : f
       ));
+
+      // Prevent scrolling on mobile while dragging
+      if (e && e.cancelable) e.preventDefault();
     };
 
-    const handleMouseUp = () => {
-      setDragInfo(null);
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY, e);
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        handleMove(e.touches[0].clientX, e.touches[0].clientY, e);
+      }
     };
+
+    const stopDragging = () => setDragInfo(null);
 
     if (dragInfo) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', stopDragging);
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('touchend', stopDragging);
+      window.addEventListener('touchcancel', stopDragging);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', stopDragging);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', stopDragging);
+      window.removeEventListener('touchcancel', stopDragging);
     };
   }, [dragInfo]);
 
@@ -145,7 +166,7 @@ export const FragmentsPage: React.FC = () => {
               key={`${frag.id}-${idx}`}
               className={`absolute group 
                 ${isRefreshing ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100'} 
-                ${isDragging ? '' : 'transition-all duration-1000 ease-out'}`}
+                ${isDragging ? 'z-[1000]' : 'transition-all duration-1000 ease-out'}`}
               style={{ 
                 left: `${frag.x}%`, 
                 top: `${frag.y}%`, 
@@ -153,6 +174,7 @@ export const FragmentsPage: React.FC = () => {
                 zIndex: frag.zIndex
               }}
               onMouseDown={(e) => handleMouseDown(e, frag.id)}
+              onTouchStart={(e) => handleTouchStart(e, frag.id)}
             >
               {/* Polaroid Frame */}
               <div className={`bg-white p-2 pb-6 shadow-polaroid border border-stone-100/50 w-32 md:w-48 lg:w-56 select-none
@@ -170,7 +192,8 @@ export const FragmentsPage: React.FC = () => {
                     {/* View Button (Clickable even when draggable) */}
                     <button 
                       onMouseDown={(e) => e.stopPropagation()} 
-                      onClick={() => setSelectedPhotoIndex(idx)}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); setSelectedPhotoIndex(idx); }}
                       className="p-1.5 rounded-full bg-stone-50 text-stone-300 hover:text-accent-brown hover:bg-stone-100 transition-colors"
                       title="放大查看"
                     >
@@ -204,7 +227,7 @@ export const FragmentsPage: React.FC = () => {
       <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-3 text-stone-300/60 pointer-events-none">
          <div className="flex items-center gap-1.5">
            <Grab size={12} />
-           <span className="text-[9px] font-serif uppercase tracking-widest">鼠标拖拽翻找</span>
+           <span className="text-[9px] font-serif uppercase tracking-widest">拖拽或触摸翻找</span>
          </div>
          <div className="w-1 h-1 rounded-full bg-stone-200" />
          <div className="flex items-center gap-1.5">
