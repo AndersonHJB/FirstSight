@@ -16,7 +16,7 @@ export const FragmentsPage: React.FC = () => {
   const [fragments, setFragments] = useState<Fragment[]>([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(-1);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [maxZIndex, setMaxZIndex] = useState(20);
+  const [maxZIndex, setMaxZIndex] = useState(100);
   
   // Dragging State
   const [dragInfo, setDragInfo] = useState<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
@@ -32,16 +32,17 @@ export const FragmentsPage: React.FC = () => {
     const shuffled = [...allPhotos].sort(() => 0.5 - Math.random());
     const picked = shuffled.slice(0, window.innerWidth < 768 ? 8 : 15);
 
+    // 碎片的 zIndex 从 10 开始，避免与背景层冲突
     const newFragments = picked.map((photo, index) => ({
       ...photo,
       x: 15 + Math.random() * 70,
       y: 20 + Math.random() * 60,
       rotate: (Math.random() - 0.5) * 30,
-      zIndex: index + 1
+      zIndex: 10 + index
     }));
 
     setFragments(newFragments);
-    setMaxZIndex(newFragments.length + 1);
+    setMaxZIndex(10 + newFragments.length);
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
@@ -77,7 +78,6 @@ export const FragmentsPage: React.FC = () => {
   const handleTouchStart = (e: React.TouchEvent, id: string) => {
     const touch = e.touches[0];
     startDragging(id, touch.clientX, touch.clientY);
-    // Note: preventDefault here might block clicking, but we handle that via the Zoom button
   };
 
   useEffect(() => {
@@ -93,7 +93,6 @@ export const FragmentsPage: React.FC = () => {
           : f
       ));
 
-      // Prevent scrolling on mobile while dragging
       if (e && e.cancelable) e.preventDefault();
     };
 
@@ -148,17 +147,24 @@ export const FragmentsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-paper overflow-hidden relative pt-20">
       {/* Background Subtle Texture */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" 
            style={{ backgroundImage: 'radial-gradient(#8c7b75 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
-      {/* Header Info */}
-      <div className="absolute top-28 left-0 right-0 z-0 px-6 text-center pointer-events-none">
+      {/* Header Info - Set to z-10 */}
+      <div className="absolute top-28 left-0 right-0 z-10 px-6 text-center pointer-events-none">
          <h1 className="font-hand text-5xl text-ink/60 mb-2">时光碎片</h1>
          <p className="font-serif text-[10px] text-stone-300 italic tracking-[0.3em] uppercase">Drag to rearrange and find memories</p>
       </div>
 
+      {/* Background Quote - Changed from z-[-1] to z-0 to avoid being hidden by bg-paper */}
+      <div className="fixed inset-0 flex items-center justify-center z-0 opacity-[0.15] select-none px-6 pointer-events-none">
+         <p className="font-hand text-3xl md:text-5xl lg:text-6xl text-stone-600 italic text-center max-w-4xl leading-relaxed">
+           “ {randomQuote} ”
+         </p>
+      </div>
+
       {/* The Canvas */}
-      <div ref={containerRef} className="relative w-full h-[85vh] touch-none">
+      <div ref={containerRef} className="relative w-full h-[85vh] touch-none z-20">
         {fragments.map((frag, idx) => {
           const isDragging = dragInfo?.id === frag.id;
           return (
@@ -189,7 +195,6 @@ export const FragmentsPage: React.FC = () => {
                       <p className="font-hand text-xs md:text-sm text-stone-500 truncate">{frag.title}</p>
                       <p className="text-[8px] font-sans text-stone-300 uppercase tracking-tighter mt-0.5">{frag.date}</p>
                     </div>
-                    {/* View Button (Clickable even when draggable) */}
                     <button 
                       onMouseDown={(e) => e.stopPropagation()} 
                       onTouchStart={(e) => e.stopPropagation()}
@@ -218,13 +223,8 @@ export const FragmentsPage: React.FC = () => {
          </button>
       </div>
 
-      {/* Background Quote */}
-      <div className="fixed bottom-32 left-0 right-0 text-center z-[-1] opacity-20 select-none px-6 pointer-events-none">
-         <p className="font-hand text-2xl md:text-3xl text-stone-400 italic">“ {randomQuote} ”</p>
-      </div>
-
       {/* Hint for Users */}
-      <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-3 text-stone-300/60 pointer-events-none">
+      <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-3 text-stone-300/60 pointer-events-none z-30">
          <div className="flex items-center gap-1.5">
            <Grab size={12} />
            <span className="text-[9px] font-serif uppercase tracking-widest">拖拽或触摸翻找</span>
