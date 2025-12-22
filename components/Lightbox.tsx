@@ -32,19 +32,16 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
 
   return (
     <div 
-      className="fixed inset-0 z-[1000] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
+      className="fixed inset-0 z-[60] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
       onClick={onClose}
     >
       
-      {/* Controls - Aggressively moved down for mobile browser UI (top-20 is 80px) */}
-      <div 
-        className="fixed right-4 md:right-8 flex items-center gap-4 z-[1100]"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 5rem)' }}
-      >
+      {/* Controls */}
+      <div className="absolute top-6 right-6 flex items-center gap-4 z-20">
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
-             className="p-3 rounded-full bg-stone-800 text-white md:bg-white/20 md:hover:bg-stone-200/50 md:text-ink transition-colors backdrop-blur-md shadow-xl border border-stone-200/30"
+             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors"
              title="分享明信片"
            >
              <Share2 size={24} strokeWidth={1.5} />
@@ -52,7 +49,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
          )}
          <button 
            onClick={(e) => { e.stopPropagation(); onClose(); }} 
-           className="p-3 rounded-full bg-stone-800 text-white md:bg-white/20 md:hover:bg-stone-200/50 md:text-ink transition-colors backdrop-blur-md shadow-xl border border-stone-200/30"
+           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink"
          >
            <X size={28} strokeWidth={1.5} />
          </button>
@@ -79,8 +76,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
         onClick={(e) => e.stopPropagation()}
       >
         
-        {/* Photo/Video Side - Significant top padding on mobile to avoid overlapping fixed buttons */}
-        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12 pt-40 md:pt-12">
+        {/* Photo/Video Side */}
+        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">
            {isVideo ? (
              <video
                key={`${photo.id}-${currentUrlIndex}`}
@@ -108,6 +105,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
 
         {/* Story Side */}
         <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-l border-stone-100">
+           
            <div className="flex flex-col gap-1 mb-8 border-b border-stone-200 pb-6">
               <div className="flex items-center gap-3 text-accent-brown font-serif text-sm">
                 <span className="flex items-center gap-1.5"><Calendar size={14}/> {photo.date}</span>
@@ -129,9 +127,14 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
                 </span>
               ))}
            </div>
+           
+           <div className="mt-8 flex items-center justify-center opacity-30">
+              {isVideo ? <Play size={24} className="text-stone-400" /> : <Camera size={24} className="text-stone-400" />}
+           </div>
         </div>
       </div>
 
+      {/* Share Modal Integration */}
       {isShareOpen && (
         <ShareModal 
           photo={photo} 
