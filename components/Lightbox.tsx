@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Photo } from '../types';
 import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera, Play, Share2 } from 'lucide-react';
 import { ShareModal } from './ShareModal';
@@ -28,20 +28,26 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev, isShareOpen]);
 
+  // 禁止背景滚动
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, []);
+
   const isVideo = photo.mediaType === 'video';
 
-  return (
+  const lightboxContent = (
     <div 
-      className="fixed inset-0 z-[60] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
+      className="fixed inset-0 z-[150] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
       onClick={onClose}
     >
       
-      {/* Controls */}
-      <div className="absolute top-6 right-6 flex items-center gap-4 z-20">
+      {/* Controls: 在手机端增加 top 间距以避开导航栏 */}
+      <div className="absolute top-24 md:top-6 right-6 flex items-center gap-4 z-[160]">
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
-             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors"
+             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors bg-white/20 backdrop-blur-sm shadow-sm md:shadow-none"
              title="分享明信片"
            >
              <Share2 size={24} strokeWidth={1.5} />
@@ -49,7 +55,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
          )}
          <button 
            onClick={(e) => { e.stopPropagation(); onClose(); }} 
-           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink"
+           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink bg-white/20 backdrop-blur-sm shadow-sm md:shadow-none"
          >
            <X size={28} strokeWidth={1.5} />
          </button>
@@ -143,4 +149,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
       )}
     </div>
   );
+
+  const root = document.getElementById('root') || document.body;
+  return createPortal(lightboxContent, root);
 };
