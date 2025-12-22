@@ -56,15 +56,15 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
         style={{ backgroundImage: `url(${photo.poster || photo.url[0]})` }}
       />
 
-      {/* Top Controls - Significantly increased offset for mobile */}
+      {/* Top Controls - Significantly increased offset for mobile (80px + safe area) */}
       <div 
-        className={`fixed right-4 md:right-8 flex items-center gap-3 md:gap-4 z-[100001] transition-all ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 2rem)' }}
+        className={`fixed right-4 md:right-8 flex items-center gap-4 z-[100005] transition-all ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 5rem)' }}
       >
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }}
-             className="p-2.5 md:p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-md border border-white/10 shadow-lg"
+             className="p-3 text-white bg-white/20 md:hover:bg-white/30 rounded-full transition-all cursor-pointer backdrop-blur-xl border border-white/20 shadow-2xl active:scale-90"
            >
              <Share2 size={24} strokeWidth={1.5} />
            </button>
@@ -72,7 +72,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
          
          <button 
            onClick={(e) => { e.stopPropagation(); onClose(); }}
-           className="p-2.5 md:p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-md border border-white/10 shadow-lg"
+           className="p-3 text-white bg-white/20 md:hover:bg-white/30 rounded-full transition-all cursor-pointer backdrop-blur-xl border border-white/20 shadow-2xl active:scale-90"
          >
            <X size={32} strokeWidth={1} />
          </button>
@@ -99,8 +99,8 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
          ) : <div />}
       </div>
 
-      {/* Main Content Area - Added top padding for mobile */}
-      <div className="relative w-full h-full p-4 md:p-12 pt-32 md:pt-12 flex items-center justify-center overflow-hidden z-[50]">
+      {/* Main Content Area - Increased top offset for mobile display */}
+      <div className="relative w-full h-full p-4 md:p-12 pt-48 md:pt-12 flex items-center justify-center overflow-hidden z-[50]">
         {isVideo ? (
            <video 
              src={photo.url[0]} 

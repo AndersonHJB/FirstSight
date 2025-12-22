@@ -56,14 +56,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
   }, [photo.id]);
 
   const modalContent = (
-    <div className="fixed inset-0 z-[100005] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in backdrop-blur-md">
+    <div className="fixed inset-0 z-[100010] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in backdrop-blur-md">
       
-      {/* Top Bar Actions - Using Fixed and generous top margin */}
+      {/* Top Bar Actions - Deeply offset for mobile (top-24 is 96px) */}
       <div 
-        className="fixed inset-x-0 top-0 flex justify-between items-center px-6 py-4 text-white z-[100010]"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 2rem)' }}
+        className="fixed inset-x-0 flex justify-between items-center px-6 py-4 text-white z-[100020]"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 5rem)' }}
       >
-         <button onClick={onClose} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-md border border-white/10 shadow-lg">
+         <button onClick={onClose} className="p-3 bg-stone-800 md:bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-md border border-white/10 shadow-2xl active:scale-90">
            <X size={24} />
          </button>
          
@@ -72,7 +72,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
               <button 
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="flex items-center gap-2 bg-accent-brown px-6 py-2.5 rounded-full text-sm font-medium hover:bg-accent-brown/80 transition-all shadow-lg active:scale-95"
+                className="flex items-center gap-2 bg-accent-brown px-6 py-3 rounded-full text-sm font-medium hover:bg-accent-brown/80 transition-all shadow-2xl active:scale-95 disabled:opacity-50"
               >
                 {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
                 {isGenerating ? '正在绘制...' : '生成明信片'}
@@ -80,7 +80,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
             ) : (
               <button 
                 onClick={handleDownload}
-                className="flex items-center gap-2 bg-blue-600 px-6 py-2.5 rounded-full text-sm font-medium hover:bg-blue-500 transition-all shadow-lg active:scale-95"
+                className="flex items-center gap-2 bg-blue-600 px-6 py-3 rounded-full text-sm font-medium hover:bg-blue-500 transition-all shadow-2xl active:scale-95"
               >
                 <Download size={18} /> 下载保存
               </button>
@@ -88,8 +88,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
          </div>
       </div>
 
-      {/* Card Preview - Moved down to avoid top bar overlap */}
-      <div className="relative mt-24 md:mt-0 w-full max-w-[340px] md:max-w-[360px] aspect-[9/16] shadow-2xl rounded-sm overflow-hidden flex flex-col scale-[0.9] md:scale-100">
+      {/* Card Preview - Pushed down to accommodate fixed top bar */}
+      <div className="relative mt-40 md:mt-0 w-full max-w-[340px] md:max-w-[360px] aspect-[9/16] shadow-2xl rounded-sm overflow-hidden flex flex-col scale-[0.85] md:scale-100">
         {generatedImg && (
           <img src={generatedImg} className="absolute inset-0 z-50 w-full h-full object-contain bg-white" alt="Share Card" />
         )}
@@ -99,7 +99,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
           className="absolute inset-0 w-full h-full bg-paper flex flex-col z-0"
           style={{ width: '360px', height: '640px' }} 
         >
-          {/* Card Content ... (Same as before) */}
+          {/* Card Head */}
           <div className="pt-8 px-6 flex justify-between items-start shrink-0">
              <div className="flex flex-col">
                <span className="font-serif text-xl tracking-widest text-ink/80">时光 · 家书</span>
@@ -147,7 +147,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
 
       {/* Mobile Hint */}
       {generatedImg && (
-        <div className="mt-6 text-center space-y-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)' }}>
+        <div className="mt-8 text-center space-y-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' }}>
            <p className="text-white/80 text-sm font-serif tracking-widest animate-pulse">已生成明信片</p>
            <p className="text-white/40 text-[10px]">手机端请长按图片保存，或点击右上角下载</p>
         </div>
