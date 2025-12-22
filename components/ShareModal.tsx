@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Photo } from '../types';
 import { X, Download, Share2, MapPin, Calendar, Heart, Loader2, Globe } from 'lucide-react';
@@ -50,7 +50,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
     "愿此生如诗，岁月静好。",
     "每一个像素，都是爱的证据。"
   ];
-  // Stable random quote based on photo ID so it doesn't change on re-render within same session
+  
   const randomQuote = useMemo(() => {
     const index = photo.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % shareQuotes.length;
     return shareQuotes[index];
@@ -61,10 +61,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
       
       {/* Top Bar Actions - Safe Area Support */}
       <div 
-        className="w-full max-w-lg flex justify-between items-center mb-6 text-white px-2"
-        style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
+        className="w-full max-w-lg flex justify-between items-center mb-10 text-white px-2"
+        style={{ marginTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
       >
-         <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={24} /></button>
+         <button onClick={onClose} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-md border border-white/10"><X size={24} /></button>
          <div className="flex gap-4">
             {!generatedImg ? (
               <button 
@@ -73,21 +73,21 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
                 className="flex items-center gap-2 bg-accent-brown px-6 py-2.5 rounded-full text-sm font-medium hover:bg-accent-brown/80 transition-all disabled:opacity-50 shadow-lg"
               >
                 {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
-                {isGenerating ? '正在绘制定制明信片...' : '生成分享明信片'}
+                {isGenerating ? '正在绘制...' : '生成明信片'}
               </button>
             ) : (
               <button 
                 onClick={handleDownload}
                 className="flex items-center gap-2 bg-blue-600 px-6 py-2.5 rounded-full text-sm font-medium hover:bg-blue-500 transition-all shadow-lg"
               >
-                <Download size={18} /> 下载高清原图
+                <Download size={18} /> 下载原图
               </button>
             )}
          </div>
       </div>
 
       {/* Viewport for PC / Preview */}
-      <div className="relative w-full max-w-[360px] aspect-[9/16] shadow-2xl rounded-sm overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-[340px] md:max-w-[360px] aspect-[9/16] shadow-2xl rounded-sm overflow-hidden flex flex-col scale-[0.95] md:scale-100">
         
         {/* Render Result (High Res Display) */}
         {generatedImg && (
@@ -147,7 +147,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
                    {/* Fixed Link */}
                    <div className="flex items-center gap-1.5 text-accent-brown/60">
                       <Globe size={10} />
-                      <span className="text-[9px] font-sans font-medium tracking-wider">https://firstsight.bornforthis.cn/</span>
+                      <span className="text-[9px] font-sans font-medium tracking-wider">https://bornforthis.cn/</span>
                    </div>
                 </div>
 
@@ -172,7 +172,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
 
       {/* Hint for mobile */}
       {generatedImg && (
-        <div className="mt-8 text-center space-y-2" style={{ paddingBottom: 'env(safe-area-inset-bottom, 1rem)' }}>
+        <div className="mt-8 text-center space-y-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
            <p className="text-white/80 text-sm font-serif tracking-widest animate-pulse">
              已为你生成专属记忆明信片
            </p>
@@ -188,12 +188,3 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
   const root = document.getElementById('root') || document.body;
   return createPortal(modalContent, root);
 };
-
-// Internal helper for memoization
-function useMemo<T>(factory: () => T, deps: any[]): T {
-  const [val, setVal] = React.useState<T>(factory);
-  React.useEffect(() => {
-    setVal(factory());
-  }, deps);
-  return val;
-}

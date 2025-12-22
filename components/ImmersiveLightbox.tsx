@@ -59,16 +59,16 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
         style={{ backgroundImage: `url(${photo.poster || photo.url[0]})` }}
       />
 
-      {/* Top Controls - Respect Safe Area */}
+      {/* Top Controls - Enhanced for Safe Area and visibility */}
       <div 
-        className={`absolute right-6 flex items-center gap-4 z-[10000] transition-all ${showControls ? 'opacity-100' : 'opacity-0'}`}
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)' }}
+        className={`absolute right-4 md:right-8 flex items-center gap-3 md:gap-4 z-[10000] transition-all ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}
       >
          {/* Share Button (Only for images) */}
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }}
-             className="p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all cursor-pointer"
+             className="p-2.5 md:p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer backdrop-blur-md border border-white/10"
              title="分享明信片"
            >
              <Share2 size={24} strokeWidth={1.5} />
@@ -77,7 +77,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
          
          <button 
            onClick={(e) => { e.stopPropagation(); onClose(); }}
-           className="p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all cursor-pointer"
+           className="p-2.5 md:p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer backdrop-blur-md border border-white/10"
            title="关闭"
          >
            <X size={32} strokeWidth={1} />
@@ -106,7 +106,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
       </div>
 
       {/* Main Image / Video */}
-      <div className="relative w-full h-full p-0 md:p-12 flex items-center justify-center overflow-hidden z-[50]">
+      <div className="relative w-full h-full p-4 md:p-12 flex items-center justify-center overflow-hidden z-[50]">
         {isVideo ? (
            <video 
              src={photo.url[0]} 

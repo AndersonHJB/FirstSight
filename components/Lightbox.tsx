@@ -36,15 +36,15 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
       onClick={onClose}
     >
       
-      {/* Controls - Optimized for mobile safe areas */}
+      {/* Controls - Optimized for mobile safe areas and notches */}
       <div 
-        className="absolute right-6 flex items-center gap-4 z-20"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)' }}
+        className="absolute right-4 md:right-8 flex items-center gap-3 md:gap-4 z-[70]"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}
       >
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
-             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors"
+             className="p-2 md:p-3 rounded-full bg-white/10 md:hover:bg-stone-200/50 text-ink transition-colors backdrop-blur-md shadow-sm border border-stone-200/20"
              title="分享明信片"
            >
              <Share2 size={24} strokeWidth={1.5} />
@@ -52,7 +52,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
          )}
          <button 
            onClick={(e) => { e.stopPropagation(); onClose(); }} 
-           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink"
+           className="p-2 md:p-3 rounded-full bg-white/10 md:hover:bg-stone-200/50 transition-colors text-ink backdrop-blur-md shadow-sm border border-stone-200/20"
          >
            <X size={28} strokeWidth={1.5} />
          </button>
@@ -80,7 +80,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
       >
         
         {/* Photo/Video Side */}
-        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">
+        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12 pt-20 md:pt-12">
            {isVideo ? (
              <video
                key={`${photo.id}-${currentUrlIndex}`}
