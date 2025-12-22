@@ -38,12 +38,12 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
 
   const lightboxContent = (
     <div 
-      className="fixed inset-0 z-[150] bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
+      className="fixed inset-0 z-[2000] bg-paper md:bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
       onClick={onClose}
     >
       
-      {/* Controls: 在手机端增加 top 间距以避开导航栏 */}
-      <div className="absolute top-24 md:top-6 right-6 flex items-center gap-4 z-[160]">
+      {/* Controls: 恢复到 top-6，因为现在灯箱在最顶层遮挡了导航栏 */}
+      <div className="absolute top-6 right-6 flex items-center gap-4 z-[2010]">
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
@@ -90,7 +90,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
                src={photo.url[currentUrlIndex]}
                controls
                autoPlay
-               className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white animate-fade-in"
+               className="max-h-full max-w-full object-contain shadow-lg border-[4px] md:border-[8px] border-white animate-fade-in"
                poster={photo.poster}
              />
            ) : (
@@ -98,7 +98,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
                key={`${photo.id}-${currentUrlIndex}`} 
                src={photo.url[currentUrlIndex]} 
                alt={photo.title} 
-               className="max-h-full max-w-full object-contain shadow-lg border-[8px] border-white animate-fade-in"
+               className="max-h-full max-w-full object-contain shadow-lg border-[4px] md:border-[8px] border-white animate-fade-in"
              />
            )}
            
@@ -110,7 +110,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
         </div>
 
         {/* Story Side */}
-        <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-l border-stone-100">
+        <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-t md:border-t-0 md:border-l border-stone-100">
            
            <div className="flex flex-col gap-1 mb-8 border-b border-stone-200 pb-6">
               <div className="flex items-center gap-3 text-accent-brown font-serif text-sm">
@@ -150,6 +150,6 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     </div>
   );
 
-  const root = document.getElementById('root') || document.body;
-  return createPortal(lightboxContent, root);
+  // 必须挂载在 body 上以脱离所有父级层级，确保全屏覆盖
+  return createPortal(lightboxContent, document.body);
 };
