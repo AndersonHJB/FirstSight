@@ -59,8 +59,11 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
         style={{ backgroundImage: `url(${photo.poster || photo.url[0]})` }}
       />
 
-      {/* Top Controls */}
-      <div className={`absolute top-6 right-6 flex items-center gap-4 z-[10000] transition-all ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Top Controls - Respect Safe Area */}
+      <div 
+        className={`absolute right-6 flex items-center gap-4 z-[10000] transition-all ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)' }}
+      >
          {/* Share Button (Only for images) */}
          {!isVideo && (
            <button 
@@ -126,6 +129,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
       {/* Bottom Info Overlay */}
       <div 
         className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/60 to-transparent pt-32 pb-10 px-6 md:px-12 transition-opacity duration-300 pointer-events-none z-[60] ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2.5rem)' }}
       >
         <div 
           className="max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6 pointer-events-auto"
@@ -167,7 +171,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
             </div>
           </div>
           
-          <div className="text-white/40 flex items-center gap-2 font-serif italic text-sm">
+          <div className="text-white/40 flex items-center gap-2 font-serif italic text-sm hidden sm:flex">
             <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">黄</div>
             <span>Bornforthis</span>
           </div>

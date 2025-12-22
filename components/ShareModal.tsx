@@ -59,8 +59,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
   const modalContent = (
     <div className="fixed inset-0 z-[100000] bg-black/90 flex flex-col items-center justify-center p-4 animate-fade-in backdrop-blur-sm">
       
-      {/* Top Bar Actions */}
-      <div className="w-full max-w-lg flex justify-between items-center mb-6 text-white px-2">
+      {/* Top Bar Actions - Safe Area Support */}
+      <div 
+        className="w-full max-w-lg flex justify-between items-center mb-6 text-white px-2"
+        style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
+      >
          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={24} /></button>
          <div className="flex gap-4">
             {!generatedImg ? (
@@ -169,7 +172,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ photo, onClose }) => {
 
       {/* Hint for mobile */}
       {generatedImg && (
-        <div className="mt-8 text-center space-y-2">
+        <div className="mt-8 text-center space-y-2" style={{ paddingBottom: 'env(safe-area-inset-bottom, 1rem)' }}>
            <p className="text-white/80 text-sm font-serif tracking-widest animate-pulse">
              已为你生成专属记忆明信片
            </p>

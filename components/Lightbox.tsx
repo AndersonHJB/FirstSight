@@ -36,8 +36,11 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
       onClick={onClose}
     >
       
-      {/* Controls */}
-      <div className="absolute top-6 right-6 flex items-center gap-4 z-20">
+      {/* Controls - Optimized for mobile safe areas */}
+      <div 
+        className="absolute right-6 flex items-center gap-4 z-20"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)' }}
+      >
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
