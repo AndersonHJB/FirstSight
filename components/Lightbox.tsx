@@ -29,10 +29,21 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev, isShareOpen]);
 
-  // 禁止背景滚动
+  // --- 背景滚动锁定增强版 ---
   useEffect(() => {
+    // 记录原始样式
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    const originalTouchAction = window.getComputedStyle(document.body).touchAction;
+    
+    // 锁定 body 和 html
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      // 恢复原始样式
+      document.body.style.overflow = originalStyle;
+      document.documentElement.style.overflow = 'unset';
+    };
   }, []);
 
   // --- 触摸滑动逻辑 ---
@@ -45,14 +56,11 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX.current - touchEndX;
-    const threshold = 50; // 滑动阈值
+    const threshold = 50;
 
     if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        onNext(); // 向左滑 -> 下一张
-      } else {
-        onPrev(); // 向右滑 -> 上一张
-      }
+      if (diff > 0) onNext(); 
+      else onPrev();
     }
     touchStartX.current = null;
   };
@@ -61,7 +69,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
 
   const lightboxContent = (
     <div 
-      className="fixed inset-0 z-[2000] bg-paper md:bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
+      className="fixed inset-0 z-[2000] bg-paper md:bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in touch-none"
       onClick={onClose}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -72,7 +80,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
          {!isVideo && (
            <button 
              onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }} 
-             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors bg-white/20 backdrop-blur-sm shadow-sm md:shadow-none"
+             className="p-2.5 rounded-full hover:bg-stone-200/50 text-ink transition-colors bg-white/20 backdrop-blur-sm shadow-sm md:shadow-none pointer-events-auto"
              title="分享明信片"
            >
              <Share2 size={24} strokeWidth={1.5} />
@@ -80,7 +88,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
          )}
          <button 
            onClick={(e) => { e.stopPropagation(); onClose(); }} 
-           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink bg-white/20 backdrop-blur-sm shadow-sm md:shadow-none"
+           className="p-2.5 rounded-full hover:bg-stone-200/50 transition-colors text-ink bg-white/20 backdrop-blur-sm shadow-sm md:shadow-none pointer-events-auto"
          >
            <X size={28} strokeWidth={1.5} />
          </button>
@@ -104,12 +112,12 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
 
       {/* Book / Album Layout */}
       <div 
-        className="w-full h-full md:h-auto md:max-h-[85vh] md:max-w-6xl mx-auto flex flex-col md:flex-row shadow-2xl overflow-hidden rounded-[4px] bg-[#fdfbf7]"
+        className="w-full h-full md:h-auto md:max-h-[85vh] md:max-w-6xl mx-auto flex flex-col md:flex-row shadow-2xl overflow-hidden rounded-[4px] bg-[#fdfbf7] touch-auto"
         onClick={(e) => e.stopPropagation()}
       >
         
-        {/* Photo/Video Side */}
-        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12">
+        {/* Photo/Video Side - 继承 touch-none 以便手势捕获 */}
+        <div className="flex-1 md:flex-[3] bg-stone-100/50 relative flex items-center justify-center p-4 md:p-12 touch-none">
            {isVideo ? (
              <video
                key={`${photo.id}-${currentUrlIndex}`}
@@ -135,8 +143,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
            )}
         </div>
 
-        {/* Story Side */}
-        <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-t md:border-t-0 md:border-l border-stone-100">
+        {/* Story Side - 显式设置 touch-auto 以允许在长描述时滚动文字 */}
+        <div className="flex-1 md:flex-[1.5] bg-paper relative p-8 md:p-12 overflow-y-auto flex flex-col justify-center border-t md:border-t-0 md:border-l border-stone-100 touch-auto">
            
            <div className="flex flex-col gap-1 mb-8 border-b border-stone-200 pb-6">
               <div className="flex items-center gap-3 text-accent-brown font-serif text-sm">
