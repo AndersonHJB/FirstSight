@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Photo } from '../types';
 import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera, Play, Share2 } from 'lucide-react';
@@ -14,6 +14,7 @@ interface LightboxProps {
 
 export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onClose, onNext, onPrev }) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -34,15 +35,39 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     return () => { document.body.style.overflow = 'unset'; };
   }, []);
 
+  // --- 触摸滑动逻辑 ---
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+    const threshold = 50; // 滑动阈值
+
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        onNext(); // 向左滑 -> 下一张
+      } else {
+        onPrev(); // 向右滑 -> 上一张
+      }
+    }
+    touchStartX.current = null;
+  };
+
   const isVideo = photo.mediaType === 'video';
 
   const lightboxContent = (
     <div 
       className="fixed inset-0 z-[2000] bg-paper md:bg-paper/95 backdrop-blur-md flex items-center justify-center animate-fade-in"
       onClick={onClose}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       
-      {/* Controls: 恢复到 top-6，因为现在灯箱在最顶层遮挡了导航栏 */}
+      {/* Controls */}
       <div className="absolute top-6 right-6 flex items-center gap-4 z-[2010]">
          {!isVideo && (
            <button 
@@ -61,6 +86,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
          </button>
       </div>
 
+      {/* Navigation Buttons (Desktop only) */}
       <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
         <button 
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
@@ -150,6 +176,5 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     </div>
   );
 
-  // 必须挂载在 body 上以脱离所有父级层级，确保全屏覆盖
   return createPortal(lightboxContent, document.body);
 };
