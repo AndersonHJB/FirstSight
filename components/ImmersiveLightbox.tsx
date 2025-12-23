@@ -39,7 +39,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev, hasNext, hasPrev, isShareOpen]);
 
-  // --- 增强版 Body 滚动锁定 ---
+  // --- 移动端特化 Body 锁定逻辑 ---
   useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const scrollY = window.scrollY;
@@ -59,7 +59,7 @@ export const ImmersiveLightbox: React.FC<ImmersiveLightboxProps> = ({
         document.body.style.cssText = originalStyle;
         window.scrollTo(0, scrollY);
       } else {
-        document.body.style.overflow = 'unset';
+        document.body.style.overflow = '';
       }
     };
   }, []);

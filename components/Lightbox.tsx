@@ -36,22 +36,23 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, currentUrlIndex, onCl
     const originalStyle = document.body.style.cssText;
 
     if (isMobile) {
-      // 移动端采用 fixed 锁定法
+      // 移动端：通过 fixed 强制切断背景滚动关联
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
     } else {
-      // 电脑端采用标准 overflow 隐藏
+      // 电脑端：保持标准隐藏即可
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
+      // 恢复现场
       if (isMobile) {
         document.body.style.cssText = originalStyle;
         window.scrollTo(0, scrollY);
       } else {
-        document.body.style.overflow = 'unset';
+        document.body.style.overflow = '';
       }
     };
   }, []);
